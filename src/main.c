@@ -10,7 +10,11 @@ int main() {
 
 	preview(m);
 
-	prompt_player(m);
+	while (1) {
+		cycle(m);
+
+		if (get_ended(m)) break;
+	}
 
 	destroy_matrice(&m);
 }

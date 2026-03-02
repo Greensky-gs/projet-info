@@ -13,5 +13,17 @@ extern int find_squares_move(matrice, TurnEnum, int, int, int **, int **);
 extern int move_pawn(matrice, TurnEnum, int, int, int, int);
 
 extern int find_pawn_takes(matrice, TurnEnum for_player, int ** xs, int ** ys);
+extern int find_takes_pawn(matrice, TurnEnum, int, int, int **, int **);
+
+extern int find_promotables(matrice, TurnEnum, int ** xs, int ** ys);
+
+extern void end_game(matrice, TurnEnum);
+
+// Utils
+extern void clear_screen();
+
+// Engine
+
+extern void cycle(matrice);
 
 #endif
