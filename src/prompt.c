@@ -198,7 +198,6 @@ static int prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int * 
 				i++;
 			}
 		}
-		printf("x, y = (%d, %d)\n", x, y);
 
 		if (!valid) printf("Veuillez choisir un des choix proposés\n");
 	}
