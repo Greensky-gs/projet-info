@@ -42,6 +42,7 @@ from ctypes import CDLL
 
 game = CDLL("./checkers.so")
 _ = game.main()
-```
+``` 
+(ou voir exemple : [`python.example.py`](./python.example.py))
 
 Pour ça, il faut avoir le fichier python situé au même endroit que le fichier **.so**
