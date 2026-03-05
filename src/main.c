@@ -8,6 +8,7 @@
 int main() {
 	matrice m = start_game(8);
 
+	clear_screen();
 	preview(m);
 
 	while (1) {

@@ -10,6 +10,14 @@ void clear_screen() {
 	printf("\e[1;1H[\e[2J");	
 }
 
+static int streq(char * a, char * b) {
+	int i = 0;
+	while (a[i] != 0 && b[i] != 0) {
+		if (a[i] != b[i]) return 0;
+		i++;
+	}
+	return a[i] == 0 && b[i] == 0;
+}
 static char * player_name(TurnEnum p) {
 	if (p == White) return "\x1b[33mBlanc\x1b[0m";
 	return "\x1b[33mNoir\x1b[0m";
@@ -25,7 +33,7 @@ static void empty_stdin() {
 	while ((c = getchar()) != EOF && c != '\n' && c != 0);
 }
 
-static void prompt_move_pawn(int moves_count, int size, int * xs, int * ys, int * x, int * y) {
+static int prompt_move_pawn(int moves_count, int size, int * xs, int * ys, int * x, int * y) {
 	int valid = 0;
 	int sx, sy;
 
@@ -42,11 +50,12 @@ static void prompt_move_pawn(int moves_count, int size, int * xs, int * ys, int 
 		fflush(stdout);
 
 		char read[4] = {0};
-		if (fgets(read, 3, stdin) == NULL) {
+		if (fgets(read, 4, stdin) == NULL) {
 			printf("Une erreur a eu lieu lors de la lecture de votre entrée\n");
 			continue;
 		}
 		if (strchr(read, '\n') == NULL) empty_stdin();
+		if (streq(read, "res")) return 1;
 
 		sx = read[0] - 65;
 		sy = read[1] - 49;
@@ -64,12 +73,14 @@ static void prompt_move_pawn(int moves_count, int size, int * xs, int * ys, int 
 			find_index++;
 		}
 		if (!valid) {
-			printf("Votre saisie n'est pas un des coups proposés, veuillez réessayer :\n");
+			printf("Votre saisie n'est pas un des coups proposés, veuillez réessayer (res pour abandonner):\n");
 		}
 	}
 
 	*x = sx;
 	*y = sy;
+
+	return 0;
 }
 static int prompt_square(matrice board, TurnEnum player, int x, int y, int * dx, int * dy) {
 	int valid = 0;
@@ -128,21 +139,22 @@ static int prompt_square(matrice board, TurnEnum player, int x, int y, int * dx,
 	return 1;
 }
 
-void prompt_moves(matrice board, int size, TurnEnum turn, int moves_count, int * xs, int * ys) {
-	printf("%s, choisissez un déplacement parmi ceux proposés \x1b[90m(%d)\x1b[0m :\n", player_name(turn), moves_count);
+int prompt_moves(matrice board, int size, TurnEnum turn, int moves_count, int * xs, int * ys) {
+	printf("%s, choisissez un déplacement parmi ceux proposés \x1b[90m(%d)\x1b[0m (res pour abandonner) :\n", player_name(turn), moves_count);
 
 	int sx, sy;
 
-	prompt_move_pawn(moves_count, size, xs, ys, &sx, &sy);
+	if (prompt_move_pawn(moves_count, size, xs, ys, &sx, &sy)) return 1;
 
 	int dx, dy;
 
 	prompt_square(board, turn, sx, sy, &dx, &dy);
 
 	move_pawn(board, turn, sx, sy, dx, dy);
+	return 0;
 }
 
-static void prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int * xs, int * ys, int * outputx, int * outputy) {
+static int prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int * xs, int * ys, int * outputx, int * outputy) {
 	int size = get_size(board);
 
 	int sx, sy;
@@ -151,7 +163,7 @@ static void prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int *
 
 	int valid = 0;
 	while (!valid) {
-		printf("%s, choisissez un des pions pour capturer :\n", player_name(turn));
+		printf("%s, choisissez un des pions pour capturer (res pour abandonner):\n", player_name(turn));
 		int i = 0;
 		while (i < count) {
 			display_move(mvbuffer, xs[i], ys[i]);
@@ -166,6 +178,7 @@ static void prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int *
 			continue;
 		}
 		if (strchr(rdinput, '\n') == NULL) empty_stdin();
+		if (streq(rdinput, "res")) return 1;
 
 		int x = rdinput[0] - 65;
 		int y = rdinput[1] - 49;
@@ -192,8 +205,10 @@ static void prompt_capturing_pawn(matrice board, TurnEnum turn, int count, int *
 
 	*outputx = sx;
 	*outputy = sy;
+
+	return 0;
 }
-static void prompt_capture(matrice board, TurnEnum player, int x, int y, int count, int * xs, int * ys, int * outputx, int * outputy) {
+static int prompt_capture(matrice board, TurnEnum player, int x, int y, int count, int * xs, int * ys, int * outputx, int * outputy) {
 	int size = get_size(board);
 	int valid = 0;
 
@@ -202,7 +217,7 @@ static void prompt_capture(matrice board, TurnEnum player, int x, int y, int cou
 
 	while (!valid) {
 		display_move(mvbuffer, x, y);
-		printf("%s, choisissez le pion que vous voulez capturer avec votre pion \x1b[33m%s\x1b[0m\n", player_name(player), mvbuffer);
+		printf("%s, choisissez le pion que vous voulez capturer avec votre pion \x1b[33m%s\x1b[0m (res pour abandonner)\n", player_name(player), mvbuffer);
 		int i = 0;
 		while (i < count) {
 			display_move(mvbuffer, xs[i], ys[i]);
@@ -218,6 +233,7 @@ static void prompt_capture(matrice board, TurnEnum player, int x, int y, int cou
 		}
 
 		if (strchr(rdinput, '\n') == NULL) empty_stdin();
+		if (streq(rdinput, "res")) return 1;
 
 		int x = rdinput[0] - 65;
 		int y = rdinput[1] - 49;
@@ -241,23 +257,27 @@ static void prompt_capture(matrice board, TurnEnum player, int x, int y, int cou
 			printf("Veuillez choisir un pion parmi ceux proposés.\n");
 		}
 	}
+	return 0;
 }
 
-static void prompt_captures(matrice board, TurnEnum turn, int count, int * xs, int * ys) {
+static int prompt_captures(matrice board, TurnEnum turn, int count, int * xs, int * ys) {
 	int pawnx, pawny;
-	prompt_capturing_pawn(board, turn, count, xs, ys, &pawnx, &pawny);
-	printf("Pawnx = %d, pawny = %d\n", pawnx, pawny);
+	if (prompt_capturing_pawn(board, turn, count, xs, ys, &pawnx, &pawny)) return 1;
 
 	int capturedx, capturedy;
 
 	int captureables_count;
-	int * cxs, * cys;
+	int * cxs = NULL, * cys = NULL;
 
 	while ((captureables_count = find_takes_pawn(board, turn, pawnx, pawny, &cxs, &cys)) > 0) {
 		clear_screen();
 		preview(board);
 
-		prompt_capture(board, turn, pawnx, pawny, captureables_count, cxs, cys, &capturedx, &capturedy);
+		if (prompt_capture(board, turn, pawnx, pawny, captureables_count, cxs, cys, &capturedx, &capturedy)) {
+			if (cxs != NULL) free(cxs);
+			if (cys != NULL) free(cys);
+			return 1;
+		};
 
 		set_pos(board, capturedx, capturedy, 0);
 
@@ -274,6 +294,8 @@ static void prompt_captures(matrice board, TurnEnum turn, int count, int * xs, i
 		free(cxs);
 		free(cys);
 	}
+
+	return 0;
 }
 
 void prompt_player(matrice board) {
@@ -294,9 +316,33 @@ void prompt_player(matrice board) {
 	}
 
 	if (captures_count > 0) {
-		prompt_captures(board, turn, captures_count, capturesx, capturesy);
+		if (prompt_captures(board, turn, captures_count, capturesx, capturesy)) {
+			if (captures_count > 0) {
+				free(capturesy);
+				free(capturesx);
+			}
+			if (moves_count > 0) {
+				free(xs);
+				free(ys);
+			}
+			set_ended(board, 1);
+			end_game(board, turn == Black ? White : Black);
+			return;
+		}
 	} else {
-		prompt_moves(board, size, turn, moves_count, xs, ys);
+		if (prompt_moves(board, size, turn, moves_count, xs, ys)) {
+			if (captures_count > 0) {
+				free(capturesy);
+				free(capturesx);
+			}
+			if (moves_count > 0) {
+				free(xs);
+				free(ys);
+			}
+			set_ended(board, 1);
+			end_game(board, turn == Black ? White : Black);
+			return;
+		}
 	}
 
 	if (captures_count > 0) {

@@ -19,6 +19,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 $(BIN_DIR)/$(OUTPUT): $(OBJECTS)
 	$(CC) $(OBJECTS) $(FLAGS) $(SANTS) -o $(BIN_DIR)/$(OUTPUT)
 
+shared: $(BUILD_DIR) $(SOURCES)
+	$(CC) -fPIC -shared -o $(BUILD_DIR)/shared.so $(SOURCES)
+
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR) -p
 $(BIN_DIR):
