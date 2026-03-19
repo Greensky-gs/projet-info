@@ -1,3 +1,2 @@
 from ctypes import CDLL
-game = CDLL("./build/shared.so")
-_ = game.main()
+_ = CDLL("./build/shared.so").main()
