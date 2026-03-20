@@ -26,7 +26,7 @@ Remarques :
 
 # Constantes
 
-N = 10 # Taille de la grille
+N = 8 # Taille de la grille
 
 # Variables globales
 
@@ -77,7 +77,7 @@ def afficher_grille(grille, tour):
         print("")
         
         if x != N - 1:
-            print(" " * 4 + delimitation("║", 3 * "═", "╬", "║"));
+            print(" " * 4 + delimitation("╠", 3 * "═", "╬", "╣"));
 
     print(" " * 4 + delimitation("╚", 3 * "═", "╩", "╝"))
 
@@ -109,6 +109,35 @@ def set_case(grille, x, y, val):
 
 
 ## EOf fonctions d'interface de la grille
+## fonctions d'interface utilisateur
+
+def saisir_coordonnees(grille, tour):
+    """
+    Entrée : tour (int) : Le tour actuel, permet de s'addresser directement au joueur (Blanc pour 1 et Noir pour 2)
+    Sortie : (x, y) : un couple de coordonnées valides, dans la grille
+    """
+
+    entree_valide = False
+    entree = None
+
+    while not entree_valide:
+        res = input(f"\x1b[33m{"Noir" if tour == 2 else "Blanc"}\x1b[0m : veuillez entrer votre une coordonnée (ex: A1): ")
+
+        if not est_au_bon_format(res):
+            print("Votre entrée n'est pas au bon format, veuillez réessayer.")
+            continue
+
+        entree = extraire_coordonnees(res)
+        entree_valide = est_dans_grille(grille, entree[0], entree[1])
+
+        if not entree_valide:
+            print(f"Vos coordonnées \x1b[90m({entree[0]};{entree[1]})\x1b[0m ne sont pas dans la grille")
+            continue;
+
+    return entree
+
+## EOf fonctions d'interface utilisateur
+
 # EOf fonction d'interfaces
 
 
@@ -162,6 +191,25 @@ def extraire_coordonnees(message):
     return (x, y - 1)
 
 # EOf fonctions utilitaires
+
+# Fonction "outils"
+
+"""
+Les fonctions outils sont des petites fonctions, qui permettent de simplifier une expression (exemple: une grande condition, qui ne tiendrait pas sur une ligne de if, donc elle est factorisé en une petite fonction ici
+
+Ces fonctions, généralement 4 lignes, ne seront pas testées
+"""
+
+def valeur_case_depart(x, y):
+    if (x + y) % 2 != 1:
+        return 0
+    if x >= 3 and x < 5:
+        return 0
+    if x < 3:
+        return 2
+    return 1
+
+# EOf fonction "outils"
 
 
 # FONCTION DE VÉRIFICATION
@@ -334,10 +382,21 @@ test_extraire_coordonnees()
 
 # EOf Fonctions de vérification
 
-
 # Code principal
 if __name__ == "__main__":
-    grille = [ [ 0 for y in range(N) ] for x in range(N) ]
+    grille_depart = [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]; # Formule qui fait peur, 
+    grille_fin = [ [ 0 for y in range(N) ] for x in range(N) ]
+    grille_fin[0][1] = 1
+
+    grille_milieu = [ [ 0 for y in range(N) ] for x in range(N) ]
+
+
     tour = 1
 
-    afficher_grille(grille, tour)
+    afficher_grille(grille_depart, tour)
+
+    modif = saisir_coordonnees(grille_depart, tour)
+
+    set_case(grille_depart, modif[0], modif[1], 2) # Pour voir les modifications
+
+    afficher_grille(grille_grille_depart, tour)
