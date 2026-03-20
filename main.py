@@ -121,7 +121,7 @@ def saisir_coordonnees(grille, tour):
     entree = None
 
     while not entree_valide:
-        res = input(f"\x1b[33m{"Noir" if tour == 2 else "Blanc"}\x1b[0m : veuillez entrer votre une coordonnée (ex: A1): ")
+        res = input(f"\x1b[33m{'Noir' if tour == 2 else 'Blanc'}\x1b[0m : veuillez entrer votre une coordonnée (ex: A1): ")
 
         if not est_au_bon_format(res):
             print("Votre entrée n'est pas au bon format, veuillez réessayer.")
@@ -373,6 +373,7 @@ def test_extraire_coordonnees():
 ## EOf vérification saisie
 ## Appels vérifications
 
+# Ces lignes peuvent être commentées
 test_inverser_tour()
 test_est_dans_grille()
 test_case_grille()
@@ -389,11 +390,18 @@ if __name__ == "__main__":
     grille_fin[0][1] = 1
 
     grille_milieu = [ [ 0 for y in range(N) ] for x in range(N) ]
-
+    # Construction par algorithme :
+    for a, b in [ (0, 5), (0, 7), (1, 6), (1, 4), (2, 1), (2, 5), (2, 7), (3, 6) ]:
+        set_case(grille_milieu, a, b, 2)
+    for a, b in [ (4, 7), (5, 0), (5, 2), (5, 4), (6, 1), (6, 3), (6, 7), (7, 0) ]:
+        set_case(grille_milieu, a, b, 1)
+    
 
     tour = 1
 
     afficher_grille(grille_depart, tour)
+    afficher_grille(grille_milieu, tour)
+    afficher_grille(grille_fin, tour)
 
     modif = saisir_coordonnees(grille_depart, tour)
 
