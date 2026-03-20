@@ -2,10 +2,6 @@
 
 CS project for my college
 
-## Tools
-
-Projet écrit en C (natif), se joue dans un terminal car la consigne le demande
-
 ## Projet
 
 Faire un jeu de dame avec les règles suivantes (non-exhaustives) :
@@ -17,32 +13,19 @@ Faire un jeu de dame avec les règles suivantes (non-exhaustives) :
 * Captures obligatoires
 * Faire ça en python
 
-## Utilisation
+## Étapes
 
-Vous pouvez utiliser le projet de deux manières
+Le projet est en cours de développement (j'ai pas encore la suite des consignes)
 
-### En C
+## Tests
 
-Suivez ces étapes (il faut au moins **gcc**, et **make** peut aider)
+Le projet a été testé sur différentes plateformes :
 
-1. Cloner le projet ( `git clone https://github.com/Greensky-gs/projet-info` )
-2. Compiler : avec make : `make all`, sans make : compiler tous les fichiers C en un exécutable
-3. Exécuter : `./bin/main.uwu` (par défaut)
-
-### En python
-
-Il vous faudra **gcc** (et **make**, si besoin)
-
-1. Cloner le projet ( `git clone https://github.com/Greensky-gs/projet-info` )
-2. Compiler en une librarie partagée : `make shared`. La sortie sera dans `build/shared.so`
-3. L'inclure dans un fichier python, de la manière suivante :
-
-```py
-from ctypes import CDLL
-
-game = CDLL("./checkers.so")
-_ = game.main()
-``` 
-(ou voir exemple : [`python.example.py`](./python.example.py))
-
-Pour ça, il faut avoir le fichier python situé au même endroit que le fichier **.so**
+| OS | Version python |
+|:--:|:--------------:|
+| Archlinux | 3.14 |
+| Windows | 3.10 |
+| Windows | 3.11 |
+| Windows | 3.14 |
+| Ubuntu  | 3.12 |
+| Fedora  | 3.14 |
