@@ -384,13 +384,12 @@ test_extraire_coordonnees()
 # EOf Fonctions de vérification
 
 # Code principal
-if __name__ == "__main__":
-    grille_depart = [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]; # Formule qui fait peur, 
+if __name__ == "__main__": # Condition permettant d'être excuté seulement en ligne de commande et pas en importation (avec import * from main.py)
+    grille_depart = [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]
     grille_fin = [ [ 0 for y in range(N) ] for x in range(N) ]
     grille_fin[0][1] = 1
 
     grille_milieu = [ [ 0 for y in range(N) ] for x in range(N) ]
-    # Construction par algorithme :
     for a, b in [ (0, 5), (0, 7), (1, 6), (1, 4), (2, 1), (2, 5), (2, 7), (3, 6) ]:
         set_case(grille_milieu, a, b, 2)
     for a, b in [ (4, 7), (5, 0), (5, 2), (5, 4), (6, 1), (6, 3), (6, 7), (7, 0) ]:
