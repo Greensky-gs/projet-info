@@ -44,6 +44,19 @@ def est_dans_grille(grille, x, y):
 # EOf fonction de manipulation
 # Fonctions d'interface
 
+def case_grille(grille, x, y):
+    if not est_dans_grille(grille, x, y):
+        return None
+    return grille[x][y]
+def set_case(grille, x, y, val):
+    if not est_dans_grille(grille, x, y):
+        return False
+    if not val in [0, 1, 2]:
+        return False
+
+    grille[x][y] = val
+    return True
+
 ## Fonctions d'interface du tour
 
 def inverser_tour(tour):
@@ -51,6 +64,8 @@ def inverser_tour(tour):
 
 ## EOf Fonctions d'interface du tour
 ## Fonctions d'interface de la grille
+
+
 
 ## EOf fonctions d'interface de la grille
 # EOf fonction d'interfaces
@@ -82,6 +97,8 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
 
     n = len(jeu)
 
+    display = lambda v: str(v)[:5] + "..." + str(v)[-5:] if len(str(v)) > 10 else str(v)
+    displaylist = lambda l: ", ".join(list(map(display, l)))
 
     tests = 0
     passes = 0
@@ -96,7 +113,9 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
         if valid:
             passes +=1
 
-        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[32m{fonction.__name__}(\x1b[36m{str(params)}\x1b[32m) = \x1b[33m{result}\x1b[34m, attendu : \x1b[33m{attendu} | ", end = " ")
+        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[32m{fonction.__name__}(\x1b[36m{
+            displaylist(params)
+        }\x1b[32m) = \x1b[33m{result}\x1b[34m, attendu : \x1b[33m{attendu} | ", end = " ")
 
         if valid:
             print("\x1b[32mvalide\x1b[0m")
@@ -127,7 +146,7 @@ def test_inverser_tour():
     assert tour == 1, "Inverser tour 4"
 
 ## EOf vérification tour
-## Vérification est_dans_grille
+## Vérification  grille
 
 def test_est_dans_grille():
     jeu = [
@@ -141,10 +160,50 @@ def test_est_dans_grille():
     ]
 
     assert tester_fonction_avec_jeu(est_dans_grille, jeu, False), "Vérification est_dans_grille"
-## EOf vérification est_dans_grille
+def test_case_grille():
+    grillebis = [
+        [ 0 for y in range(N) ] for x in range(N)
+    ] # Pour ne pas modifier la grille de base
+
+    grillebis[N - 2][N - 1] = 2
+    grillebis[0][0] = 1
+    grillebis[N // 2][N // 2] = 0
+
+    jeu = [
+        (None, [grillebis, N + 1, 0]),
+        (None, [grillebis, 2 * N, N]),
+        (0, [grillebis, N // 2, N // 2]),
+        (2, [grillebis, N - 2, N - 1]),
+        (1, [grillebis, 0, 0])
+    ]
+
+    assert tester_fonction_avec_jeu(case_grille, jeu, False), "Vérificaiton case_grille"
+def test_set_case():
+    grillebis = [
+        [ 0 for y in range(N) ] for x in range(N)
+    ] # Pour ne pas modifier la grille globale
+
+    jeu = [
+        (True, [grillebis, 0, 0, 0]),
+        (True, [grillebis, N - 1, N - 2, 1]),
+        (True, [grillebis, N - 2, N - 1, 2]),
+        (False, [grillebis, 0, 0, 5]),
+        (False, [grillebis, 0, 0, -2]),
+        (False, [grillebis, N, N + 2, 0]),
+        (False, [grillebis, N, N, -2])
+    ]
+
+    assert tester_fonction_avec_jeu(set_case, jeu, False), "Vérification set_case"
+    assert grillebis[0][0] == 0
+    assert grillebis[N - 1][N - 2] == 1
+    assert grillebis[N - 2][N - 1] == 2
+    
+## EOf vérification grille
 ## Appels vérifications
 
 test_inverser_tour()
 test_est_dans_grille()
+test_case_grille()
+test_set_case()
 
 # EOf Fonctions de vérification
