@@ -226,7 +226,7 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
     Quand interruption_quand_echec est mis à True, une erreur est levée avec raise(AssertionError)
     """
 
-    print(f"Test de la fonction \x1b[32m{fonction.__name__}\x1b[0m...")
+    print(f"Test de la fonction \x1b[33m{fonction.__name__}\x1b[0m...")
 
     n = len(jeu)
 
@@ -246,7 +246,7 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
         if valid:
             passes +=1
 
-        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[32m{fonction.__name__}(\x1b[36m{displaylist(params)}\x1b[32m) = \x1b[33m{result}\x1b[34m, attendu : \x1b[33m{attendu} | ", end = " ")
+        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[33m{fonction.__name__}(\x1b[36m{displaylist(params)}\x1b[33m) = \x1b[36m{result}\x1b[34m, attendu : \x1b[36m{attendu}\x1b[35m | ", end = " ")
 
         if valid:
             print("\x1b[32mvalide\x1b[0m")
@@ -407,4 +407,4 @@ if __name__ == "__main__":
 
     set_case(grille_depart, modif[0], modif[1], 2) # Pour voir les modifications
 
-    afficher_grille(grille_grille_depart, tour)
+    afficher_grille(grille_depart, tour)
