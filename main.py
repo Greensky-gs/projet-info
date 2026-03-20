@@ -5,7 +5,7 @@ Type de données :
     CONSTANTES :
         N : int : le nombre de lignes (= la taille d'un côté) du plateau - C'est une constante.
 
-    VARIABLES GLOBALES :
+    VARIABLES :
         grille : list[int] : une liste de taille N*N remplie d'entiers : 0 si la case est vide, 1 si elle est occupée par le premier joueur et 2 par le deuxième
             fonctions d'interface :
                 case_grille(grille: list[int], x: int, y: int) -> int : Renvoie la valeur de la case de coordonnées (x;y). Si cette case n'existe pas, None est renvoyé
@@ -21,6 +21,7 @@ Type de données :
 
 Remarques :
     Les constantes sont manipulées comme des valeurs fixées en début, il n'y a donc pas de fonctions d'interface pour ces valeurs.
+    Ce ne sont pas des variables globales, car elles ne varient pas.
 """
 
 # Constantes
@@ -29,9 +30,6 @@ N = 10 # Taille de la grille
 
 # Variables globales
 
-grille = [ [ 0 for y in range(N) ] for x in range(N) ]
-tour = 1
-
 # Fonction de manipulation
 
 ## GRILLE
@@ -39,10 +37,62 @@ tour = 1
 def est_dans_grille(grille, x, y):
     return 0 <= x < N and 0 <= y < N
 
+def afficher_grille(grille, tour):
+    """
+    Affiche la grille. Prend en entrée une grille.
+    Ne renvoie rien
+
+    Peut éventuellement faire planter (intentionellement) le programme si la grille n'est pas valide
+    """
+
+    delimitation = lambda start, mid, sep, end: start + (mid + sep) * (N - 1) + mid + end # Fonction auxiliaire qui permet d'obtenir le séparateur
+    
+    print(" " * 5, end="");
+    for i in range(N):
+        print(f" {str(i + 1): <2} ", end="")
+    print("")
+
+    print(" " * 4 + delimitation("╔", 3 * "═", "╦", "╗"))
+    for x in range(N):
+        print(f"  {chr(x + 65)} ", end="")
+        for y in range(N):
+            case = case_grille(grille, x, y)
+            if case == None:
+                raise(AssertionError())
+ 
+            print("║ ", end="")
+            if case == 0:
+                print("  ", end="")
+            elif case == 1:
+                print("● ", end="")
+            else:
+                print("○ ", end="");
+        print("║", end="")
+
+        if x == 0 and tour == 2:
+            print("  <--", end="")
+        if x == N - 1 and tour == 1:
+            print("  <--", end="")
+
+        print("")
+        
+        if x != N - 1:
+            print(" " * 4 + delimitation("║", 3 * "═", "╬", "║"));
+
+    print(" " * 4 + delimitation("╚", 3 * "═", "╩", "╝"))
+
 ## EOf GRILLE
 
 # EOf fonction de manipulation
 # Fonctions d'interface
+
+## Fonctions d'interface du tour
+
+def inverser_tour(tour):
+    return (tour % 2) + 1
+
+## EOf Fonctions d'interface du tour
+## Fonctions d'interface de la grille
 
 def case_grille(grille, x, y):
     if not est_dans_grille(grille, x, y):
@@ -57,15 +107,6 @@ def set_case(grille, x, y, val):
     grille[x][y] = val
     return True
 
-## Fonctions d'interface du tour
-
-def inverser_tour(tour):
-    return (tour % 2) + 1
-
-## EOf Fonctions d'interface du tour
-## Fonctions d'interface de la grille
-
-
 
 ## EOf fonctions d'interface de la grille
 # EOf fonction d'interfaces
@@ -73,11 +114,55 @@ def inverser_tour(tour):
 
 # Fonctions utilitaires
 
-"""
-Pour des raisons de performances, on n'exécutera pas de tests sur les fonctions utilitaires
-"""
+def est_au_bon_format(message):
+    """
+    Entrée : string : une chaine de caractères contenant une case, en théorie.
+    Sortie : bool : si oui ou non le message contient une case valide. La sortie vaut True si le code peut lire une entrée AU BON FORMAT, pas avec les BONNE VALEURS. Autrement dit, si la saisie dépasse la grille, la fonction renverra quand même True
+    """
+
+    if len(message) < 2:
+        return False
+
+    lettre = message[0]
+    suite = message[1:]
+
+    if not ((ord("a") <= ord(lettre) <= ord("z") or (ord("A") <= ord(lettre) <= ord("Z")))):
+        return False
+    
+    # Il faut parcourir la suite du message, car il se peut que le nombre fasse plus de 2 chiffres
+    i = 0
+    while (i < len(suite)):
+        # Le premier chiffre ne peut pas être 0 (ce sera un chiffre invalide)
+        if i == 0 and not (ord("1") <= ord(suite[i]) <= ord("9")):
+            return False
+
+        if not (ord("0") <= ord(suite[i]) <= ord("9")):
+            return False
+        i+=1
+    return True
+def extraire_coordonnees(message):
+    """
+    Entrée : string : une chaine de caractères contenant une case au bon format (Une exception sera levée si ce n'est pas le cas)
+    Sortie : (int, int) : les coordonnées (x;y), avec X correspondant à la ligne (correspondant à la lattre saisie), en format PROGRAMME (commençant à 9) et y correspondant à la colone lue (correspondant au chiffre), au format PROGRAMME
+    """
+    assert est_au_bon_format(message)
+
+    x = ord(message[0])
+    if ord("a") <= x <= ord("z"):
+        x = x - ord("a") # 0 si x = "a", 1 si x = "b", ...
+    else:
+        x = x - ord("A") # 0 si x = "A", 1 si x = "B" ...
+
+    # Construction de y par la saisie
+    y = 0
+    i = 1
+    while i < len(message):
+        y = y * 10 + (ord(message[i]) - ord("0"))
+        i += 1
+    return (x, y - 1)
 
 # EOf fonctions utilitaires
+
 
 # FONCTION DE VÉRIFICATION
 
@@ -113,9 +198,7 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
         if valid:
             passes +=1
 
-        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[32m{fonction.__name__}(\x1b[36m{
-            displaylist(params)
-        }\x1b[32m) = \x1b[33m{result}\x1b[34m, attendu : \x1b[33m{attendu} | ", end = " ")
+        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[32m{fonction.__name__}(\x1b[36m{displaylist(params)}\x1b[32m) = \x1b[33m{result}\x1b[34m, attendu : \x1b[33m{attendu} | ", end = " ")
 
         if valid:
             print("\x1b[32mvalide\x1b[0m")
@@ -131,7 +214,7 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
 ## Vérification inversion tour
 
 def test_inverser_tour():
-    global tour # Indiquer à python qu'il faut utiliser cette variable
+    tour = 1
 
     tour = inverser_tour(tour);
     assert tour == 2, "Inverser tour 1"
@@ -149,6 +232,7 @@ def test_inverser_tour():
 ## Vérification  grille
 
 def test_est_dans_grille():
+    grille = [ [ 0 for y in range(N) ] for x in range(N) ]
     jeu = [
         (True, [grille, 0, 0]),
         (True, [grille, 0, N - 1]),
@@ -163,7 +247,7 @@ def test_est_dans_grille():
 def test_case_grille():
     grillebis = [
         [ 0 for y in range(N) ] for x in range(N)
-    ] # Pour ne pas modifier la grille de base
+    ]
 
     grillebis[N - 2][N - 1] = 2
     grillebis[0][0] = 1
@@ -181,7 +265,7 @@ def test_case_grille():
 def test_set_case():
     grillebis = [
         [ 0 for y in range(N) ] for x in range(N)
-    ] # Pour ne pas modifier la grille globale
+    ]
 
     jeu = [
         (True, [grillebis, 0, 0, 0]),
@@ -199,11 +283,61 @@ def test_set_case():
     assert grillebis[N - 2][N - 1] == 2
     
 ## EOf vérification grille
+## Vérification saisie
+
+def test_est_au_bon_format():
+    """
+    Rappel : la fonction est_au_bon format vérifie uniquement si la saisie est composée d'une lettre (majuscule ou minuscule) puis d'une suite de chiffres
+    """
+    jeu = [
+        (True, ["A1"]),
+        (True, ["a2"]),
+        (True, ["a901"]),
+        (True, ["B2"]),
+        (False, ["O"]),
+        (True, ["O22"]),
+        (False, ["aA"]),
+        (False, ["8"]),
+        (False, ["63"]),
+        (False, ["4b"]),
+        (False, ["1H"]),
+        (False, ["3141592653589"]),
+        (True, ["a314159265358979323846264338327950"])
+    ]
+
+    assert tester_fonction_avec_jeu(est_au_bon_format, jeu, False), "Vérification est_au_bon_format"
+def test_extraire_coordonnees():
+    jeu = [
+        ((0, 0), ["A1"]),
+        ((1, 1), ["B2"]),
+        ((2, 9), ["C10"]),
+        ((25, 1024), ["Z1025"]),
+        ((10, 0), ["K1"]),
+        ((0, 0), ["a1"]),
+        ((1, 1), ["b2"]),
+        ((2, 9), ["c10"]),
+        ((25, 1024), ["z1025"]),
+        ((10, 0), ["k1"]),
+   ]
+
+    assert tester_fonction_avec_jeu(extraire_coordonnees, jeu, False), "Vérification extraire_coordonnées"
+
+## EOf vérification saisie
 ## Appels vérifications
 
 test_inverser_tour()
 test_est_dans_grille()
 test_case_grille()
 test_set_case()
+test_est_au_bon_format()
+test_extraire_coordonnees()
 
 # EOf Fonctions de vérification
+
+
+# Code principal
+if __name__ == "__main__":
+    grille = [ [ 0 for y in range(N) ] for x in range(N) ]
+    tour = 1
+
+    afficher_grille(grille, tour)
