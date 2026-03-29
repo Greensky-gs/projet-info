@@ -404,6 +404,7 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
 
     modif = saisir_coordonnees(grille_depart, tour)
 
-    set_case(grille_depart, modif[0], modif[1], 2) # Pour voir les modifications
+    if modif is not None:
+        set_case(grille_depart, modif[0], modif[1], 2) # Pour voir les modifications
 
     afficher_grille(grille_depart, tour)
