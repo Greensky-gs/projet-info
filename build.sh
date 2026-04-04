@@ -8,4 +8,4 @@ if [[  $VALID == 0 ]]; then
 	exit 1
 fi
 
-pyassembler src -v -o build/main.py --last-file src/main.py --max-newlines 1
+pyassembler src -v -o build/main.py --last-file main.py --max-newlines 1
