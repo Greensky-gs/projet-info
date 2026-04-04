@@ -1,7 +1,14 @@
 from structs.grille.interface import *
-from headers.constants import *
+from _headers.constants import *
 
 def est_dans_grille(grille, x, y):
+    """
+    Entrée : grille, x, y
+        grille : la grille
+        x      : la position x de la case à tester
+        y      : la position y de la case à tester
+    Sortie : booléen - si la case est dans la grille
+    """
     return 0 <= x < N and 0 <= y < N
 
 def afficher_grille(grille, tour):
@@ -47,3 +54,22 @@ def afficher_grille(grille, tour):
             print(" " * 4 + delimitation("╠", 3 * "═", "╬", "╣"));
 
     print(" " * 4 + delimitation("╚", 3 * "═", "╩", "╝"))
+
+def est_partie_finie(grille, tour):
+    """
+    Entrée : grille, tour
+        grille : La grille à vérifier
+        tour   : Le tour du joueur actuel
+    Sortie : (booléen, booléen) - La première valeur correspond à si la partie est terminée, la deuxième correspond à si le joueur spécifié à gagné
+    """
+
+    apparences = []
+    for x in range(N):
+        for y in range(N):
+            case = case_grille(grille, x, y)
+            if not case == 0 and not case in apparences:
+                apparences.append(case)
+
+    # Si len(apparences) == 0 il y a un problème
+    return (len(apparences) == 1, apparences[0] == tour)
+

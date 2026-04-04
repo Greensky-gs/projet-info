@@ -1,10 +1,15 @@
-from headers.constants import *
+from _headers.constants import *
 from aux.test_function import *
 from structs.tour.interface import *
 from structs.grille.helpers import *
 from structs.grille.interface import *
+from moves.capture import deplacement_capture
+from moves.move import deplacement_mouvement
 from aux.tools import *
 from aux.utils import *
+
+def generer_grille_test():
+    return [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]
 
 def test_inverser_tour():
     tour = 1
@@ -107,14 +112,47 @@ def test_extraire_coordonnees():
         ((2, 9), ["c10"]),
         ((25, 1024), ["z1025"]),
         ((10, 0), ["k1"]),
-   ]
+    ]
 
     assert tester_fonction_avec_jeu(extraire_coordonnees, jeu, False), "Vérification extraire_coordonnées"
 
-def run_tests():
+def test_deplacement():
+    grille = generer_grille_test()
+    grille[3][6] = 1
+    jeu = [
+        (False, [grille, 7, 0, 6, 1, 1]), # La case est déjà occupée
+        (False, [grille, 5, 0, N * 2, 9, 1]), # La case d'arrivée n'existe pas
+        (False, [grille, N + 1, 10, 0, 1, 1]), # La case de départ n'existe pas
+        (False, [grille, 5, 2, 3, 4, 1]), # La case d'arrivée n'est pas une case imméditament à côté de celle de départ
+        (True, [grille, 3, 6, 4, 5, 1]), # Toutes les conditions sont validées
+    ]
+
+    assert tester_fonction_avec_jeu(deplacement_mouvement, jeu, False), "Vérification deplacement_mouvement"
+
+def test_capture():
+    grille = generer_grille_test()
+    grille[3][6] = 1
+    grille[0][3] = 1
+
+    tour = 2 # Au toir de Noir
+
+    jeu = [
+        (False, [grille, 5, 0, N * 2, 9, tour]), # La case à prendre n'existe pas
+        (False, [grille, N + 1, 10, 0, 1, tour]), # La case de départ n'existe pas
+        (False, [grille, 5, 2, 3, 4, tour]), # La case de capture n'est pas une case imméditament à côté de celle de départ
+        (False, [grille, 1, 4, 0, 3, tour]), # La case d'arrivée n'existe pas
+        (False, [grille, 1, 4, 2, 3, tour]), # Le pion à capturer est un pion allié
+        (True, [grille, 2, 7, 3, 6, tour]), # Toutes les conditions sont validées
+    ]
+
+    assert tester_fonction_avec_jeu(deplacement_capture, jeu, False), "Vérification deplacement_capture"
+
+def executer_tests():
     test_inverser_tour()
     test_est_dans_grille()
     test_case_grille()
     test_set_case()
     test_est_au_bon_format()
     test_extraire_coordonnees()
+    test_deplacement()
+    test_capture()
