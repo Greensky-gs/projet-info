@@ -17,6 +17,12 @@ Faire un jeu de dame avec les règles suivantes (non-exhaustives) :
 
 Le projet est en cours de développement (j'ai pas encore la suite des consignes)
 
+### Build.sh
+
+Le fichier [`./build/sh`](./build.sh) est un fichier "d'assemblage" ; la consigne demandant un seul fichier python
+
+Si `PyAssembler` n'est pas trouvé quand vous exécutez le script, c'est qu'il vous manque mon assembleur python, qui récupère des fichiers python et les copie-colle dans un unique fichier python (avec quelques étapes en plus). Vous pouvez l'installer depuis [https://github.com/Greensky-gs/pyassembler](https://github.com/Greensky-gs/pyassembler)
+
 ## Tests
 
 Le projet a été testé sur différentes plateformes :

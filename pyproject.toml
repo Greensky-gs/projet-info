@@ -1,0 +1,8 @@
+[project]
+name="projet-info"
+version="0.1.0"
+description="Project info uni"
+
+[build-system]
+build-backend="flit_core.buildapi"
+requires=["flit_core >= 3.2,<4"]
