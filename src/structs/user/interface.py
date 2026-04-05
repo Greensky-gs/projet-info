@@ -3,6 +3,9 @@ from structs.grille.helpers import *
 
 def saisir_coordonnees(grille, tour):
     """
+    Permet d'obtenir des coordonnées, demandées à l'utilisateur
+
+    Sortie : entier - None si la case n'existe pas, 0 si elle est vide, 1 ou 2 dépendamment du joueur qui y est
     Entrée : tour (int) : Le tour actuel, permet de s'addresser directement au joueur (Blanc pour 1 et Noir pour 2)
     Sortie : (x, y) : un couple de coordonnées valides, dans la grille
     """

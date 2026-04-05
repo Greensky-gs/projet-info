@@ -3,6 +3,8 @@ from _headers.constants import *
 
 def est_dans_grille(grille, x, y):
     """
+    Calcule si une case est dans la grille donnée
+
     Entrée : grille, x, y
         grille : la grille
         x      : la position x de la case à tester
@@ -57,6 +59,8 @@ def afficher_grille(grille, tour):
 
 def est_partie_finie(grille, tour):
     """
+    Permet de déterminer si une partie est terminée, et d'obtenir le joueur gagnant
+
     Entrée : grille, tour
         grille : La grille à vérifier
         tour   : Le tour du joueur actuel
