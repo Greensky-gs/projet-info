@@ -24,6 +24,7 @@ def est_au_bon_format(message):
             return False
         i+=1
     return True
+
 def extraire_coordonnees(message):
     """
     Entrée : string : une chaine de caractères contenant une case au bon format (Une exception sera levée si ce n'est pas le cas)
