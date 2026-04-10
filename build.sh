@@ -8,4 +8,11 @@ if [[  $VALID == 0 ]]; then
 	exit 1
 fi
 
-pyassembler src -v -o build/main.py --last-file main.py --max-newlines 2 "$@" --start-of-file "Start Of File " --end-of-file "End Of File " --fullpaths
+opts_flags=
+
+if [[ $1 == "--prod" ]]; then
+	opts_flags=--no-comments
+fi
+
+pyassembler src -v -o build/main.py --last-file main.py --max-newlines 2  --start-of-file "Start Of File " --end-of-file "End Of File " --fullpaths $opts_flags
+
