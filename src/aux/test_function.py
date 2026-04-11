@@ -1,3 +1,4 @@
+# Fonction de test
 def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
     """
     fonction facultative permettant d'automatiser le test d'une fonction (avec des couleurs parce que c'est la vie)
@@ -43,3 +44,4 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
 
     return passes == n
 
+# Fin de fonction de test

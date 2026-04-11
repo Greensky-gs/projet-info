@@ -8,6 +8,7 @@ from moves.move import deplacement_mouvement
 from aux.tools import *
 from aux.utils import *
 
+# Fonctions de tests
 def generer_grille_test():
     return [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]
 
@@ -156,3 +157,5 @@ def executer_tests():
     test_extraire_coordonnees()
     test_deplacement()
     test_capture()
+
+# Fin des fonctions de tests

@@ -2,6 +2,7 @@ from _headers.constants import *
 from structs.grille.helpers import *
 from structs.tour.helpers import *
 
+# Fonctions de capture
 def deplacement_capture(grille, originx, originy, targetx, targety, valeur):
     """
     Entrée : grille, originx, originy, targetx, targety, valeur
@@ -42,3 +43,5 @@ def deplacement_capture(grille, originx, originy, targetx, targety, valeur):
     set_case(grille, originx, originy, 0)
     set_case(grille, targetx, targety, 0)
     return True
+
+# Fin des fonctions de capture

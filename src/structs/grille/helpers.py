@@ -1,6 +1,7 @@
 from structs.grille.interface import *
 from _headers.constants import *
 
+# Fonction utilitaires de la grille
 def est_dans_grille(grille, x, y):
     """
     Calcule si une case est dans la grille donnée
@@ -77,3 +78,4 @@ def est_partie_finie(grille, tour):
     # Si len(apparences) == 0 il y a un problème
     return (len(apparences) == 1, apparences[0] == tour)
 
+# Fin des fonctions utilitaires de la grille

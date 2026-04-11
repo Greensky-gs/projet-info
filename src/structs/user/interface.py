@@ -1,6 +1,7 @@
 from aux.utils import *
 from structs.grille.helpers import *
 
+# Fonctions d'interface du joueur
 def saisir_coordonnees(grille, tour):
     """
     Permet d'obtenir des coordonnées, demandées à l'utilisateur
@@ -29,3 +30,4 @@ def saisir_coordonnees(grille, tour):
 
     return entree
 
+# Fin des fonctions d'interface du joueur

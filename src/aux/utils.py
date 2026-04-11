@@ -1,3 +1,5 @@
+# Fonctions utilitaires
+
 def est_au_bon_format(message):
     """
     Entrée : string : une chaine de caractères contenant une case, en théorie.
@@ -46,3 +48,4 @@ def extraire_coordonnees(message):
         i += 1
     return (x, y - 1)
 
+# Fin des fonctions utilitaires

@@ -1,6 +1,7 @@
 from _headers.constants import *
 from structs.grille.helpers import *
 
+# Fonction de déplacement
 def deplacement_mouvement(grille, originx, originy, targetx, targety, valeur):
     """
     Entrée : grille, originx, originy, targetx, targety, valeur
@@ -27,3 +28,4 @@ def deplacement_mouvement(grille, originx, originy, targetx, targety, valeur):
     set_case(grille, targetx, targety, valeur)
     return True
 
+# Fin des fonctions de déplacement

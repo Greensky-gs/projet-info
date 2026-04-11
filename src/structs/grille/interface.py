@@ -1,3 +1,4 @@
+# Fonctions d'interface de la grille
 def case_grille(grille, x, y):
     """
     Obtient la valeur de la case (x;y) de la grille grille
@@ -34,3 +35,4 @@ def set_case(grille, x, y, val):
     grille[x][y] = val
     return True
 
+# Fin des fonctions d'interface de la grille

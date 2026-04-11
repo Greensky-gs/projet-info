@@ -1,3 +1,4 @@
+# Fonctions outils
 """
 Les fonctions outils sont des petites fonctions, qui permettent de simplifier une expression (exemple: une grande condition, qui ne tiendrait pas sur une ligne de if, donc elle est factorisé en une petite fonction ici
 
@@ -13,3 +14,4 @@ def valeur_case_depart(x, y):
         return 2
     return 1
 
+# Fin des fonctions outils
