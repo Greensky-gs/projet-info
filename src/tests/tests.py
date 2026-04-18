@@ -1,5 +1,6 @@
 from _headers.constants import *
 from aux.test_function import *
+from moves.detection import positions_alentours
 from structs.tour.interface import *
 from structs.grille.helpers import *
 from structs.grille.interface import *

@@ -13,7 +13,7 @@ def positions_alentours(grille, position):
         position : un tuple (int, int) représentant la positio (x;y) de la case
     """
 
-    alentours = [(position[0] + 1, position[1] + 1), (position[0] + 1, position[1] - 1), (position[0] - 1, position[1] + 1), (position[0] - 1, position[1] + 1)] # Toutes les cases autour de la position donnée
+    alentours = [(position[0] + 1, position[1] + 1), (position[0] + 1, position[1] - 1), (position[0] - 1, position[1] + 1), (position[0] - 1, position[1] - 1)] # Toutes les cases autour de la position donnée
 
     return [ x for x in alentours if est_dans_grille(grille, x[0], x[1]) ]
 
@@ -88,7 +88,7 @@ def detection_captures_pions(grille, position):
         targety = position[1] + coefy;
 
         if case_grille(grille, casex, casey) == adversaire and est_dans_grille(grille, targetx, targety) and case_grille(grille, targetx, targety) == 0: # La aux alentours est un adversaire, la case d'arrivée existe et est libre
-            resultat.append((targetx, targety))
+            resultat.append((casex, casey))
     return resultat
 
 def detection_pion_captureur(grille, position):

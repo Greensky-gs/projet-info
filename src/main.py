@@ -4,6 +4,7 @@ from structs.grille.helpers import *
 from structs.user.interface import *
 from aux.utils import *
 from tests.tests import *
+from moves.play import *
 
 if __name__ == "__main__": # Condition permettant d'être excuté seulement en ligne de commande et pas en importation depuis un autre fichier
     executer_tests()
@@ -21,13 +22,11 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
 
     tour = 1
 
-    afficher_grille(grille_depart, tour)
+    #afficher_grille(grille_depart, tour)
     afficher_grille(grille_milieu, tour)
-    afficher_grille(grille_fin, tour)
+    #afficher_grille(grille_fin, tour)
 
-    modif = saisir_coordonnees(grille_milieu, tour)
-
-    if modif is not None:
-        set_case(grille_depart, modif[0], modif[1], 2) # Pour voir les modifications
+    tour_de_jeu(grille_milieu, tour)
+    tour = inverser_tour(tour)
 
     afficher_grille(grille_milieu, tour)

@@ -48,4 +48,11 @@ def extraire_coordonnees(message):
         i += 1
     return (x, y - 1)
 
+def afficher_cords(data):
+    x, y = data
+    X = chr(ord("A") + x)
+    Y = chr(ord("0") + y + 1)
+
+    return f"{X}{Y}"
+
 # Fin des fonctions utilitaires

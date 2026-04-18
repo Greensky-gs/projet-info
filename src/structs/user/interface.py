@@ -2,20 +2,24 @@ from aux.utils import *
 from structs.grille.helpers import *
 
 # Fonctions d'interface du joueur
-def saisir_coordonnees(grille, tour):
+def saisir_coordonnees(grille, tour, msg = None):
     """
     Permet d'obtenir des coordonnées, demandées à l'utilisateur
 
-    Sortie : entier - None si la case n'existe pas, 0 si elle est vide, 1 ou 2 dépendamment du joueur qui y est
-    Entrée : tour (int) : Le tour actuel, permet de s'addresser directement au joueur (Blanc pour 1 et Noir pour 2)
+    Entrée :
+        grille     : la grille
+        tour (int) : Le tour actuel, permet de s'addresser directement au joueur (Blanc pour 1 et Noir pour 2)
+        msg        : [OPTIONNEL] Le message à afficher avant de prendre la coordonnée | Par défaut : f"\x1b[33m{'Noir' if tour == 2 else 'Blanc'}\x1b[0m : veuillez entrer une coordonnée (ex: A1): "
     Sortie : (x, y) : un couple de coordonnées valides, dans la grille
     """
+    if msg is None:
+        msg = f"\x1b[33m{'Noir' if tour == 2 else 'Blanc'}\x1b[0m : veuillez entrer une coordonnée (ex: A1): "
 
     entree_valide = False
     entree = None
 
     while not entree_valide:
-        res = input(f"\x1b[33m{'Noir' if tour == 2 else 'Blanc'}\x1b[0m : veuillez entrer votre une coordonnée (ex: A1): ")
+        res = input(msg)
 
         if not est_au_bon_format(res):
             print("Votre entrée n'est pas au bon format, veuillez réessayer.")
