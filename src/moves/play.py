@@ -86,7 +86,37 @@ def capture_case(grille, tour, options):
         return
 
 def deplacement_case(grille, tour, options):
-    pass
+    cases = options
+    msg = f"Choisissez un pion à déplacer parmi : {", ".join(list(map(afficher_cords, cases)))} : "
+
+    while  len(cases) > 0:
+        saisie = saisir_coordonnees(grille, tour, msg)
+
+        if saisie is None:
+            print("Votre saisie n'est pas valide");
+            continue
+        if not saisie in cases:
+            print("    Votre saisie n'est pas dans la liste")
+
+        targets = detection_deplacements_pions(grille, saisie)
+        target_msg = f"Choisissez une case pour votre pion parmi {", ".join(list(map(afficher_cords, targets))) } : "
+
+        while len(targets) > 0:
+            saisie_target = saisir_coordonnees(grille, tour, target_msg);
+            if saisie_target is None:
+                print("Votre saisie n'est pas valide");
+                continue;
+            if not saisie_target in targets:
+                print("Votre saisie n'est pas dans la liste des cases disponibles")
+                continue
+
+            if not deplacement_mouvement(grille, saisie[0], saisie[1], saisie_target[0], saisie_target[1], case_grille(grille, saisie[0], saisie[1])):
+                print("\x1b[31mLe mouvement n'a pas eu lieu, réessayez\x1b[0m")
+                continue;
+            if appliquer_mort_subite(grille, tour):
+                return;
+
+            return;
 
 def tour_de_jeu(grille, tour):
     """Effectue un tour de jeu complet (saisie, et application)
@@ -102,4 +132,6 @@ def tour_de_jeu(grille, tour):
     
     if type_deplacement == 'capture':
         capture_case(grille, tour, options)
+    elif type_deplacement == 'deplacement':
+        deplacement_case(grille, tour, options)
     
