@@ -5,8 +5,10 @@ from structs.user.interface import *
 from aux.utils import *
 from tests.tests import *
 from moves.play import *
+from aux.menu import *
 
 if __name__ == "__main__": # Condition permettant d'être excuté seulement en ligne de commande et pas en importation depuis un autre fichier
+    menu("test", []);
     executer_tests()
 
     grille_depart = [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]
