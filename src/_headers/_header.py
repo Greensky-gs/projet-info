@@ -16,8 +16,9 @@ Type de données :
                 est_dans_grille(grille: list[int], x: int, y: int) -> bool : Renvoie True si la case de coordonnées (x;y) peut être écrite dans la grille, False sinon
 
         tour : int : Une variable globale, qui contient 1 ou 2, dépendamment du joueur qui doit jouer. Vaut 1 si c'est au premier joueur, 2 si c'est au deuxième
-            Fonction d'interface :
+            Fonctions d'interface :
                 inverser_tour(tour: int[]) -> None : Change la tour pour l'autre joueur
+                couleur_tour(tour: int) -> str     : Renvoie la couleur correspondant au tour ("blanc" ou "noir")
 
 Remarques :
     Les constantes sont manipulées comme des valeurs fixées en début, il n'y a donc pas de fonctions d'interface pour ces valeurs.
