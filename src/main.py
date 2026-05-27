@@ -130,7 +130,7 @@ def jco(grille, est_ordinateur_ameliore):
             mort_subite = False
         elif mort_subite == None:
             print(f"\x1b[1m{
-                  nomJ2 if couleurJ1 == 1 else nomJ1
+                  noms[joueur_adverse(tour) - 1]
             }\x1b[0m a abandonné")
             res = (True, True) # (True, True) car : (Le joueur a abandoné, les tours ont été inversés, donc ce joueur a gagné)
             continue;

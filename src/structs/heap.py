@@ -10,10 +10,12 @@ def abr_creer(taille_max = 256):
 def abr_sommet(abr):
     return abr[0]
 
-def abr_inserer(abr, elt):
+def abr_inserer(abr, elt, taille):
     i = 0
-    while abr[i] is not None:
+    while abr[i] is not None and i < taille:
         i += 1
+    if i >= taille:
+        return
 
     abr[i] = elt
     parent_index = math.floor((i - 1) / 2)

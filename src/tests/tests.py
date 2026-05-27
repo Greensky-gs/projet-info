@@ -220,13 +220,13 @@ def test_abr():
     b = abr_creer(4)
     c = abr_creer(4)
 
-    abr_inserer(a, [0, 'abc'])
-    abr_inserer(b, [0, 'abc'])
-    abr_inserer(b, [1, 'abcd'])
-    abr_inserer(b, [-1, 'abcde'])
-    abr_inserer(c, [0, 'abc'])
-    abr_inserer(c, [-1, 'abcde'])
-    abr_inserer(c, [3, 'trois'])
+    abr_inserer(a, [0, 'abc'], 4)
+    abr_inserer(b, [0, 'abc'], 4)
+    abr_inserer(b, [1, 'abcd'], 4)
+    abr_inserer(b, [-1, 'abcde'], 4)
+    abr_inserer(c, [0, 'abc'], 4)
+    abr_inserer(c, [-1, 'abcde'], 4)
+    abr_inserer(c, [3, 'trois'], 4)
 
     jeu = [
         ([0, 'abc'], [a]),
