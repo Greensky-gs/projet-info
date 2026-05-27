@@ -17,6 +17,8 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
 
     display = lambda v: str(v)[:5] + "..." + str(v)[-5:] if len(str(v)) > 10 else str(v)
     displaylist = lambda l: ", ".join(list(map(display, l)))
+    
+    max_length = len(str(n))
 
     tests = 0
     passes = 0
@@ -31,7 +33,11 @@ def tester_fonction_avec_jeu(fonction, jeu, interruption_quand_echec = True):
         if valid:
             passes +=1
 
-        print(f"\x1b[35m[{tests}/{n}]\x1b[0m \x1b[33m{fonction.__name__}(\x1b[36m{displaylist(params)}\x1b[33m) = \x1b[36m{result}\x1b[34m, attendu : \x1b[36m{attendu}\x1b[35m | ", end = " ")
+        test_num = str(tests)
+        while len(test_num) < max_length:
+            test_num = " " + test_num
+
+        print(f"\x1b[35m[{test_num}/{n}]\x1b[0m \x1b[33m{fonction.__name__}(\x1b[36m{displaylist(params)}\x1b[33m) = \x1b[36m{result}\x1b[34m, attendu : \x1b[36m{attendu}\x1b[35m | ", end = " ")
 
         if valid:
             print("\x1b[32mvalide\x1b[0m")

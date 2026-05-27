@@ -14,10 +14,14 @@ def est_dans_grille(grille, x, y):
     """
     return 0 <= x < N and 0 <= y < N
 
-def afficher_grille(grille, tour):
+def afficher_grille(grille, tour, noms_joueurs: tuple[str, str]):
     """
-    Affiche la grille. Prend en entrée une grille.
-    Ne renvoie rien
+    Affiche la grille.
+    Entrée : grille, tour, nom_joueurs
+        grille       : la grille
+        tour         : le tour actuel
+        noms_joueurs : Le nom de, respectivement, Blanc et Noir sous forme de 2-uplet
+    Sortie : None
 
     Peut éventuellement faire planter (intentionellement) le programme si la grille n'est pas valide
     """
@@ -28,6 +32,8 @@ def afficher_grille(grille, tour):
     for i in range(N):
         print(f" {str(i + 1): <2} ", end="")
     print("")
+
+    nom_joueur = noms_joueurs[tour - 1]
 
     print(" " * 4 + delimitation("╔", 3 * "═", "╦", "╗"))
     for x in range(N):
@@ -47,9 +53,9 @@ def afficher_grille(grille, tour):
         print("║", end="")
 
         if x == 0 and tour == 2:
-            print("  <--", end="")
+            print(f"  <-- \x1b[1m{nom_joueur}\x1b[0m", end="")
         if x == N - 1 and tour == 1:
-            print("  <--", end="")
+            print(f"  <-- \x1b[1m{nom_joueur}\x1b[0m", end="")
 
         print("")
         

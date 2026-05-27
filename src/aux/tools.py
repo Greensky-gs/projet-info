@@ -14,4 +14,7 @@ def valeur_case_depart(x, y):
         return 2
     return 1
 
+def effacer_console():
+    print("\x1b[1;1H[\x1b[2J") # Caractères "magiques" permettant d'effacer la console peu importe le système d'exploitation
+
 # Fin des fonctions outils
