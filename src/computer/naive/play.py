@@ -1,10 +1,11 @@
 # Fonctions de jeu de l'ordinateur
 from aux.tools import effacer_console
-from computer.select_move import *
+from moves.detection import *
 from moves.capture import deplacement_capture
 from moves.move import deplacement_mouvement
 from suddendeath.detection import appliquer_mort_subite
 from time import sleep
+from computer.naive.select_move import choisir_coup_ordinateur
 from _headers.constants import *
 
 def jeu_ordinateur(grille, joueur, nom, tour, noms_joueurs):

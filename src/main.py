@@ -2,7 +2,7 @@ from random import randint
 from time import sleep
 from _headers._header import *
 from _headers.constants import *
-from computer.play import jeu_ordinateur
+from computer.naive.play import jeu_ordinateur
 from structs.grille.helpers import *
 from structs.user.interface import *
 from aux.utils import *
