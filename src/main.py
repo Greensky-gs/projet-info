@@ -20,6 +20,11 @@ def jcj(grille: list[list[int]]):
 
     couleurJ1 = randint(1, 2)
 
+    noms = (
+        nomJ1 if couleurJ1 == 1 else nomJ2,
+        nomJ2 if couleurJ1 == 1 else nomJ1
+    )
+
     print(f"\x1b[1m{nomJ1}\x1b[0m, vous jouerez les \x1b[1m{couleur_tour(couleurJ1)}\x1b[0m")
     print(f"\x1b[1m{nomJ2}\x1b[0m, vous jouerez les \x1b[1m{couleur_tour(joueur_adverse(couleurJ1))}\x1b[0m")
 
@@ -34,11 +39,14 @@ def jcj(grille: list[list[int]]):
     res = est_partie_finie(grille, tour)
     while not res[0]:
         effacer_console()
-        afficher_grille(grille, tour)
+        afficher_grille(grille, tour, noms)
         tour_de_jeu(grille, tour)
         tour = inverser_tour(tour)
 
         res = est_partie_finie(grille, tour)
+
+    effacer_console()
+    afficher_grille(grille, tour, noms)
 
     if res[1] is True:
         nom_gagnant = nomJ1 if tour == couleurJ1 else nomJ2
