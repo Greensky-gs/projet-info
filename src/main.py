@@ -2,6 +2,7 @@ from random import randint
 from time import sleep
 from _headers._header import *
 from _headers.constants import *
+from computer.engine.play import jeu_ordinateur_ameliore
 from computer.naive.play import jeu_ordinateur
 from structs.grille.helpers import *
 from structs.user.interface import *
@@ -16,8 +17,8 @@ def jcj(grille: list[list[int]]):
 
     Prend en paramètre la grille sélectionnée
     """
-    nomJ1 = input("\x1b[4mJoueur 1 entrez votre pseudo :\x1b[0m ")
-    nomJ2 = input("\x1b[4mJoueur 2 entrez votre pseudo :\x1b[0m ")
+    nomJ1 = ask_pseudo("\x1b[4mJoueur 1 entrez votre pseudo :\x1b[0m ")
+    nomJ2 = ask_pseudo("\x1b[4mJoueur 2 entrez votre pseudo :\x1b[0m ")
 
     couleurJ1 = randint(1, 2)
 
@@ -74,13 +75,13 @@ def jcj(grille: list[list[int]]):
         nom_gagnant = nomJ2 if tour == couleurJ1 else nomJ1
         print(f"\x1b[1m{nom_gagnant}\x1b[0m a gagné !")
 
-def jco(grille):
+def jco(grille, est_ordinateur_ameliore):
     """
     Fonction principale pour le joueur contre ordinateur
 
     Prend en paramètre la grille sélectionnée
     """
-    nomJ1 = input("\x1b[4mJoueur, entrez votre pseudo :\x1b[0m ")
+    nomJ1 = ask_pseudo("\x1b[4mJoueur, entrez votre pseudo :\x1b[0m ")
     nomJ2 = "FryDames1"
 
     couleurJ1 = randint(1, 2)
@@ -104,11 +105,13 @@ def jco(grille):
 
     afficher_grille(grille, tour, noms)
 
+    fonction_appel = jeu_ordinateur if not est_ordinateur_ameliore else jeu_ordinateur_ameliore
+
     while not res[0]:
         if tour == couleurJ1:
             mort_subite = tour_de_jeu(grille, tour, noms)
         else:
-            mort_subite = jeu_ordinateur(grille, tour, nomJ2, tour, noms)
+            mort_subite = fonction_appel(grille, tour, nomJ2, tour, noms)
 
         tour = inverser_tour(tour)
 
@@ -163,9 +166,10 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
         grille_fin[4][3] = 2
 
         grille_milieu = [ [ 0 for _ in range(N) ] for _ in range(N) ]
-        for a, b in [ (0, 5), (0, 7), (1, 6), (1, 4), (2, 1), (2, 7), (3, 6) ]:
+        for a, b in [ (0, 5), (0, 7), (1, 4), (2, 7), (3, 2), (3, 4), (3, 6) ]:
             set_case(grille_milieu, a, b, 2)
-        for a, b in [ (4, 7), (5, 0), (5, 2), (5, 4), (6, 1), (6, 3), (6, 7), (7, 0) ]:
+        # TODO remove (2, 5)
+        for a, b in [ (2, 5), (4, 7), (5, 0), (5, 2), (5, 4), (6, 1), (6, 3), (6, 7), (7, 0) ]:
             set_case(grille_milieu, a, b, 1)
     
         grille = [grille_depart, grille_milieu, grille_fin][grille_selectionne]
@@ -173,4 +177,9 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
         if option_selectionnee == 1:
             jcj(grille);
         else:
-            jco(grille)
+            ordinateur_selectionne = menu("Ordinateur", [
+                ("Naïf", "Affrontez l'ordinateur naïf", 0),
+                ("Amélioré", "Affrontez l'ordinateur doté d'un système de raisonnement", 1)
+            ])
+
+            jco(grille, ordinateur_selectionne == 1)
