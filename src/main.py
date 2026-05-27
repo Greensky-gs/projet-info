@@ -2,6 +2,7 @@ from random import randint
 from time import sleep
 from _headers._header import *
 from _headers.constants import *
+from computer.play import jeu_ordinateur
 from structs.grille.helpers import *
 from structs.user.interface import *
 from aux.utils import *
@@ -67,6 +68,69 @@ def jcj(grille: list[list[int]]):
         nom_gagnant = nomJ2 if tour == couleurJ1 else nomJ1
         print(f"\x1b[1m{nom_gagnant}\x1b[0m a gagné !")
 
+def jco(grille):
+    """
+    Fonction principale pour le joueur contre ordinateur
+
+    Prend en paramètre la grille sélectionnée
+    """
+    nomJ1 = input("\x1b[4mJoueur, entrez votre pseudo :\x1b[0m ")
+    nomJ2 = "FryDames1"
+
+    couleurJ1 = randint(1, 2)
+
+    noms = (
+        nomJ1 if couleurJ1 == 1 else nomJ2,
+        nomJ2 if couleurJ1 == 1 else nomJ1
+    )
+
+    print(f"\x1b[1m{nomJ1}\x1b[0m, vous jouerez les \x1b[1m{couleur_tour(couleurJ1)}\x1b[0m")
+
+    sleep(1)
+    for x in range(3, -1, -1):
+        print(f"Début de la partie dans \x1b[1;33m{x}\x1b[0m...", end="\r")
+        sleep(1)
+
+    effacer_console()
+    
+    tour = 1
+    res = est_partie_finie(grille, tour)
+
+    afficher_grille(grille, tour, noms)
+
+    while not res[0]:
+        if tour == couleurJ1:
+            mort_subite = tour_de_jeu(grille, tour, noms)
+        else:
+            for x in range(1, 4):
+                print(f"\x1b[1m{nomJ2}\x1b[0m réfléchi" + "." * x, end="\r")
+                sleep(T / 3)
+            mort_subite = jeu_ordinateur(grille, tour)
+
+        tour = inverser_tour(tour)
+
+        effacer_console()
+        afficher_grille(grille, tour, noms)
+
+        if mort_subite:
+            msg = " MORT SUBITE !! "
+            base = 4
+            taille_plateau = 1 + 4 * N
+            delta = (taille_plateau - len(msg)) // 2
+
+            total = base + delta
+            print(" " * total, end="")
+            print(f"\x1b[47;91;1m{msg}\x1b[0m")
+            mort_subite = False
+
+        res = est_partie_finie(grille, tour)
+
+    if res[1] is True:
+        nom_gagnant = nomJ1 if tour == couleurJ1 else nomJ2
+        print(f"\x1b[1m{nom_gagnant}\x1b[0m a gagné !")
+    else:
+        nom_gagnant = nomJ2 if tour == couleurJ1 else nomJ1
+        print(f"\x1b[1m{nom_gagnant}\x1b[0m a gagné !")
 
 if __name__ == "__main__": # Condition permettant d'être excuté seulement en ligne de commande et pas en importation depuis un autre fichier
     option_selectionnee = menu("Mode", [
@@ -101,4 +165,4 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
         if option_selectionnee == 1:
             jcj(grille);
         else:
-            pass
+            jco(grille)
