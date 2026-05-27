@@ -39,7 +39,17 @@ def select_deplacement(grille, tour):
 
     return saisie
 
-def capture_case(grille, tour, options):
+def capture_case(grille, tour, options, noms_joueurs):
+    """
+    Effectue la capture complète d'un joueur
+    Entée : grille, tour, options, noms_joueurs
+        grille       : La grille
+        tour         : Le tour actuel
+        options      : Les pions disponibles pour la capture
+        noms_joueurs : Les noms des joueurs
+    Sortie : bool - True si la mort subite a été appliquée, False sinon
+    """
+
     cases = options
     msg = f"Choisissez un pion pour capturer parmi : {", ".join(list(map(afficher_cords, cases)))} : "
 
@@ -76,15 +86,25 @@ def capture_case(grille, tour, options):
             targety = (saisie_target[1] - saisie[1]) * 2 + saisie[1]
 
             if appliquer_mort_subite(grille, tour):
-                return;
+                return True
 
-            afficher_grille(grille, tour)
+            afficher_grille(grille, tour, noms_joueurs)
+
             targets = detection_captures_pions(grille, (targetx, targety))
             saisie = (targetx, targety)
             target_msg = f"Choisissez un pion à capturer parmi {", ".join(list(map(afficher_cords, targets)))} : "
-        return
+        return False
 
 def deplacement_case(grille, tour, options):
+    """
+    Effectue le déplacement complet d'un joueur
+    Entrée : grille, tour, options
+        grille  : La grille
+        tour    : Le tour actuel
+        options : Les pions disponibles pour un joueur
+
+    Sortie : True si la mort subite a été appliquée, False sinon
+    """
     cases = options
     msg = f"Choisissez un pion à déplacer parmi : {", ".join(list(map(afficher_cords, cases)))} : "
 
@@ -114,24 +134,23 @@ def deplacement_case(grille, tour, options):
                 print("\x1b[31mLe mouvement n'a pas eu lieu, réessayez\x1b[0m")
                 continue;
             if appliquer_mort_subite(grille, tour):
-                return;
+                return True;
+            return False;
 
-            return;
-
-def tour_de_jeu(grille, tour):
+def tour_de_jeu(grille, tour, noms_joueurs):
     """Effectue un tour de jeu complet (saisie, et application)
     
     Entrée : grille, tour
-        grille : La grille
-        tour   : Le joueur qui doit jouer ( 1 = Blanc, 2 = Noir )
-    Sortie : Rien
+        grille       : La grille
+        tour         : Le joueur qui doit jouer ( 1 = Blanc, 2 = Noir )
+        noms_joueurs : Le nom des joueurs
+    Sortie : bool - True si la mort subite a été appliquée, False sinon
     """
     type_deplacement = select_deplacement(grille, tour)
 
     options = detection_captures_joueur(grille, tour) if type_deplacement == 'capture' else detection_deplacements_joueur(grille, tour)
     
     if type_deplacement == 'capture':
-        capture_case(grille, tour, options)
+        return capture_case(grille, tour, options, noms_joueurs)
     elif type_deplacement == 'deplacement':
-        deplacement_case(grille, tour, options)
-    
+        return deplacement_case(grille, tour, options)

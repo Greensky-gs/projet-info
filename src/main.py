@@ -37,16 +37,28 @@ def jcj(grille: list[list[int]]):
     
     tour = 1
     res = est_partie_finie(grille, tour)
+
+    afficher_grille(grille, tour, noms)
+
     while not res[0]:
-        effacer_console()
-        afficher_grille(grille, tour, noms)
-        tour_de_jeu(grille, tour)
+        mort_subite = tour_de_jeu(grille, tour, noms)
         tour = inverser_tour(tour)
 
-        res = est_partie_finie(grille, tour)
+        effacer_console()
+        afficher_grille(grille, tour, noms)
 
-    effacer_console()
-    afficher_grille(grille, tour, noms)
+        if mort_subite:
+            msg = " MORT SUBITE !! "
+            base = 4
+            taille_plateau = 1 + 4 * N
+            delta = (taille_plateau - len(msg)) // 2
+
+            total = base + delta
+            print(" " * total, end="")
+            print(f"\x1b[47;91;1m{msg}\x1b[0m")
+            mort_subite = False
+
+        res = est_partie_finie(grille, tour)
 
     if res[1] is True:
         nom_gagnant = nomJ1 if tour == couleurJ1 else nomJ2
