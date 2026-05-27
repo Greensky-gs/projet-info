@@ -102,10 +102,7 @@ def jco(grille):
         if tour == couleurJ1:
             mort_subite = tour_de_jeu(grille, tour, noms)
         else:
-            for x in range(1, 4):
-                print(f"\x1b[1m{nomJ2}\x1b[0m réfléchi" + "." * x, end="\r")
-                sleep(T / 3)
-            mort_subite = jeu_ordinateur(grille, tour)
+            mort_subite = jeu_ordinateur(grille, tour, nomJ2, tour, noms)
 
         tour = inverser_tour(tour)
 
@@ -137,7 +134,7 @@ if __name__ == "__main__": # Condition permettant d'être excuté seulement en l
         ("tests", "Lancer les tests", 0),
         ("JcJ", "Jouer contre un autre joueur", 1),
         ("JcO", "Jouer contre l'ordinateur", 2)
-    ]);
+        ]);
 
     if option_selectionnee == 0:
         executer_tests()
