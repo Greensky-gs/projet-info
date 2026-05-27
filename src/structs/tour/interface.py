@@ -8,6 +8,7 @@ def inverser_tour(tour):
     Sortie : le tour inversé
     """
     return (tour % 2) + 1
+
 def couleur_tour(tour):
     return "blanc" if tour == 1 else "noir"
 # Fin des fonctions d'interface du tour

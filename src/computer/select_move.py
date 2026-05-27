@@ -1,5 +1,6 @@
 from moves.detection import *
 from random import randint
+# Fonction de sélection de coup pour l'ordinateur
 
 def choisir_coup_ordinateur(grille, joueur, pion_impose = None) -> tuple[int, tuple[int, int], tuple[int, int]] | None:
     """

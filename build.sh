@@ -14,5 +14,5 @@ if [[ $1 == "--prod" ]]; then
 	opts_flags=--no-comments
 fi
 
-pyassembler src -v -o build/main.py --last-file main.py --max-newlines 2  --start-of-file "Start Of File " --end-of-file "End Of File " --fullpaths $opts_flags
+pyassembler src -v -o build/main.py --last-file main.py --max-newlines 2  --start-of-file "Début de " --end-of-file "Fin de " --fullpaths $opts_flags
 
