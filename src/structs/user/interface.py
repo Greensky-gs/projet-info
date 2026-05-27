@@ -33,5 +33,14 @@ def saisir_coordonnees(grille, tour, msg = None):
             continue;
 
     return entree
+def ask_pseudo(msg):
+    resp = None
+    while resp is None:
+        res = input(msg)
+        if res is None or len(res) <= 0:
+            print("Invalide")
+            continue
+        resp = res
+    return resp
 
 # Fin des fonctions d'interface du joueur

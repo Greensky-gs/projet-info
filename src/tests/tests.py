@@ -9,6 +9,7 @@ from moves.move import deplacement_mouvement
 from aux.tools import *
 from aux.utils import *
 from suddendeath.detection import plus_proche_pion
+from structs.heap import *
 
 # Fonctions de tests
 def generer_grille_test():
@@ -197,6 +198,70 @@ def test_plus_proche_pion():
 
     assert tester_fonction_avec_jeu(plus_proche_pion, jeu, False), "Vérification plus_proche_pion"
 
+def est_abr_trie(abr, taille):
+    i = 0
+    while abr[i] is not None:
+        index_gauche = 2 * i + 1
+        index_droite = 2 * i + 2
+        
+        if index_gauche < taille:
+            fils_gauche = abr[index_gauche]
+            if fils_gauche is not None and fils_gauche[0] > abr[i][0]:
+                return False
+        if index_droite < taille:
+            fils_droit = abr[index_droite]
+            if fils_droit is not None and fils_droit[0] > abr[i][0]:
+                return False
+        i += 1
+    return True
+
+def test_abr():
+    a = abr_creer(4)
+    b = abr_creer(4)
+    c = abr_creer(4)
+
+    abr_inserer(a, [0, 'abc'])
+    abr_inserer(b, [0, 'abc'])
+    abr_inserer(b, [1, 'abcd'])
+    abr_inserer(b, [-1, 'abcde'])
+    abr_inserer(c, [0, 'abc'])
+    abr_inserer(c, [-1, 'abcde'])
+    abr_inserer(c, [3, 'trois'])
+
+    jeu = [
+        ([0, 'abc'], [a]),
+        ([1, 'abcd'], [b]),
+        ([3, 'trois'], [c])
+    ]
+
+    assert tester_fonction_avec_jeu(abr_sommet, jeu, False), "Vérification ABR"
+
+    jeu_tri = [
+        (True, [a, 4]),
+        (True, [b, 4]),
+        (True, [c, 4])
+    ]
+
+    assert tester_fonction_avec_jeu(est_abr_trie, jeu_tri, False), "Vérification tri ABR"
+
+    jeu_pop = [
+        ([0, 'abc'], [a, 4]),
+        ([1, 'abcd'], [b, 4]),
+        ([3, 'trois'], [c, 4])
+    ]
+
+    assert tester_fonction_avec_jeu(abr_pop, jeu_pop, False), "Vérification suppression ABR"
+
+    jeu_nouveau_sommet = [
+        (None, [a]),
+        ([0, 'abc'], [b]),
+        ([0, 'abc'], [c])
+    ]
+
+    assert tester_fonction_avec_jeu(abr_sommet, jeu_nouveau_sommet, False), "Vérification nouveau sommet ABR"
+
+    assert tester_fonction_avec_jeu(est_abr_trie, jeu_tri, False), "Vérification tri ABR après opérations"
+
 def executer_tests():
     test_inverser_tour()
     test_est_dans_grille()
@@ -208,5 +273,6 @@ def executer_tests():
     test_capture()
     test_positions_alentours()
     test_plus_proche_pion()
+    test_abr()
 
 # Fin des fonctions de tests

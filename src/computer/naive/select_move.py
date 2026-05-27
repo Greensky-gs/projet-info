@@ -37,8 +37,9 @@ def choisir_coup_ordinateur(grille, joueur, pion_impose = None) -> tuple[int, tu
 
         return (0, pion, cible)
     else:
-        # La fonction n'est appellée dans ce cas la que si le pion précisé peut capturer
         captures = detection_captures_pions(grille, pion_impose)
+        if len(captures) == 0:
+            return None
 
         # Choix au hasard d'une capture
         capture = captures[randint(0, len(captures) - 1)]
