@@ -13,10 +13,6 @@ Faire un jeu de dame avec les règles suivantes (non-exhaustives) :
 * Captures obligatoires
 * Faire ça en python
 
-## Étapes
-
-Le projet est en cours de développement (j'ai pas encore la suite des consignes)
-
 ### Build.sh
 
 Le fichier [`./build/sh`](./build.sh) est un fichier "d'assemblage" ; la consigne demandant un seul fichier python
