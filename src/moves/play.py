@@ -88,7 +88,7 @@ def deplacement_case(grille, tour, options):
     cases = options
     msg = f"Choisissez un pion à déplacer parmi : {", ".join(list(map(afficher_cords, cases)))} : "
 
-    while  len(cases) > 0:
+    while len(cases) > 0:
         saisie = saisir_coordonnees(grille, tour, msg)
 
         if saisie is None:
@@ -96,6 +96,7 @@ def deplacement_case(grille, tour, options):
             continue
         if not saisie in cases:
             print("    Votre saisie n'est pas dans la liste")
+            continue
 
         targets = detection_deplacements_pions(grille, saisie)
         target_msg = f"Choisissez une case pour votre pion parmi {", ".join(list(map(afficher_cords, targets))) } : "
