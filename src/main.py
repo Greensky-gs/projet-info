@@ -58,6 +58,12 @@ def jcj(grille: list[list[int]]):
             print(" " * total, end="")
             print(f"\x1b[47;91;1m{msg}\x1b[0m")
             mort_subite = False
+        elif mort_subite == None:
+            print(f"\x1b[1m{
+                  nomJ2 if couleurJ1 == 1 else nomJ1
+            }\x1b[0m a abandonné")
+            res = (True, True) # (True, True) car : (Le joueur a abandoné, les tours ont été inversés, donc ce joueur a gagné)
+            continue
 
         res = est_partie_finie(grille, tour)
 
@@ -109,7 +115,7 @@ def jco(grille):
         effacer_console()
         afficher_grille(grille, tour, noms)
 
-        if mort_subite:
+        if mort_subite is True:
             msg = " MORT SUBITE !! "
             base = 4
             taille_plateau = 1 + 4 * N
@@ -119,7 +125,12 @@ def jco(grille):
             print(" " * total, end="")
             print(f"\x1b[47;91;1m{msg}\x1b[0m")
             mort_subite = False
-
+        elif mort_subite == None:
+            print(f"\x1b[1m{
+                  nomJ2 if couleurJ1 == 1 else nomJ1
+            }\x1b[0m a abandonné")
+            res = (True, True) # (True, True) car : (Le joueur a abandoné, les tours ont été inversés, donc ce joueur a gagné)
+            continue;
         res = est_partie_finie(grille, tour)
 
     if res[1] is True:

@@ -16,14 +16,22 @@ def select_deplacement(grille, tour):
     Entrée : grille, tour
         grille : La grille
         tour   : Le joueur qui doit jouer ( 1 = Blanc, 2 = Noir )
-    Sortie : 'capture' | 'deplacement'
+    Sortie : 'capture' | 'deplacement' | 'abandon'
     """
     peut_capturer = len(detection_captures_joueur(grille, tour)) > 0
+    available = [ 'capture', 'déplacement', 'abandon' ]
 
     saisie = None
-    while not (saisie == 'capture' or saisie == 'deplacement'):
-        print(f"Veuillez choisir votre type de coup : [{"capture" if peut_capturer else "déplacement" }]")
+    while not (saisie in available):
+        print(f"Veuillez choisir votre type de coup : [{"capture" if peut_capturer else "déplacement" }/abandon]")
         res = input("> ")
+        if len(res) <= 0:
+            print("Votre saisie est invalide")
+            continue
+
+        if res.lower() == 'abandon':
+            saisie = 'abandon'
+            continue
 
         if peut_capturer and res != 'capture':
             print("Votre saisie est invalide.")
@@ -74,9 +82,6 @@ def capture_case(grille, tour, options, noms_joueurs):
                 print("Votre saisie n'est pas dans la liste");
                 continue
 
-            if saisie_target is None:
-                raise NotImplementedError() # N'arrive jamais, c'est pour que le linter ne détecte pas d'erreur sur la ligne suivante
-
             if not deplacement_capture(grille, saisie[0], saisie[1], saisie_target[0], saisie_target[1], case_grille(grille, saisie[0], saisie[1])):
                 print("\x1b[31mLa capture n'a pas eu lieu, réessayez\x1b[0m")
                 continue
@@ -88,6 +93,7 @@ def capture_case(grille, tour, options, noms_joueurs):
             if appliquer_mort_subite(grille, tour):
                 return True
 
+            effacer_console()
             afficher_grille(grille, tour, noms_joueurs)
 
             targets = detection_captures_pions(grille, (targetx, targety))
@@ -144,9 +150,11 @@ def tour_de_jeu(grille, tour, noms_joueurs):
         grille       : La grille
         tour         : Le joueur qui doit jouer ( 1 = Blanc, 2 = Noir )
         noms_joueurs : Le nom des joueurs
-    Sortie : bool - True si la mort subite a été appliquée, False sinon
+    Sortie : bool | None - True si la mort subite a été appliquée, False sinon. Vaut None quand le joueur abandonne
     """
     type_deplacement = select_deplacement(grille, tour)
+    if type_deplacement == "abandon":
+        return None    
 
     options = detection_captures_joueur(grille, tour) if type_deplacement == 'capture' else detection_deplacements_joueur(grille, tour)
     
