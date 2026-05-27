@@ -19,7 +19,7 @@ def select_deplacement(grille, tour):
     Sortie : 'capture' | 'deplacement' | 'abandon'
     """
     peut_capturer = len(detection_captures_joueur(grille, tour)) > 0
-    available = [ 'capture', 'déplacement', 'abandon' ]
+    available = [ 'capture', 'deplacement', 'abandon' ]
 
     saisie = None
     while not (saisie in available):
