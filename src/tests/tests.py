@@ -8,10 +8,13 @@ from moves.capture import deplacement_capture
 from moves.move import deplacement_mouvement
 from aux.tools import *
 from aux.utils import *
+from suddendeath.detection import plus_proche_pion
 
 # Fonctions de tests
 def generer_grille_test():
     return [ [ valeur_case_depart(x, y) for y in range(N) ] for x in range(N) ]
+def generer_grille_vide():
+    return [ [ 0 for _ in range(N) ] for _ in range(N) ]
 
 def test_inverser_tour():
     tour = 1
@@ -136,7 +139,7 @@ def test_capture():
     grille[3][6] = 1
     grille[0][3] = 1
 
-    tour = 2 # Au toir de Noir
+    tour = 2 # Au tour de Noir
 
     jeu = [
         (False, [grille, 5, 0, N * 2, 9, tour]), # La case à prendre n'existe pas
@@ -149,6 +152,51 @@ def test_capture():
 
     assert tester_fonction_avec_jeu(deplacement_capture, jeu, False), "Vérification deplacement_capture"
 
+def test_positions_alentours():
+    grille = generer_grille_test()
+
+    mid = N // 2
+
+    jeu = [
+        ([(1, 1)], [grille, (0, 0)]), # Angle supérieur gauche
+        ([(N - 2, N - 2)], [grille, (N - 1, N - 1)]), # Angle inférieur droit
+        ([(mid + 1, mid + 1), (mid + 1, mid - 1), (mid - 1, mid + 1), (mid - 1, mid - 1)], [grille, (mid, mid)]), # Milieu
+        ([(2, 1), (0, 1)], [grille, (1, 0)]), # Sur le bord gauche
+        ([], [grille, (2 * N + 2, 2 * N + 2)]), # Position inexistante
+    ]
+
+    assert tester_fonction_avec_jeu(positions_alentours, jeu, False), "Vérififcation positions_alentours"
+
+def test_plus_proche_pion():
+    grille = generer_grille_vide()
+    grille_1_pion = generer_grille_vide()
+    grille_2_pion = generer_grille_vide()
+    grille_3_pion = generer_grille_vide()
+
+    grille_1_pion[0][0] = 1
+    grille_2_pion[0][0] = 1
+    grille_2_pion[1][1] = 2
+
+    grille_3_pion[0][0] = 1
+    grille_3_pion[0][2] = 2
+    grille_3_pion[0][4] = 1
+
+    jeu = [
+        (None, [grille, (0, 0)]),
+        (None, [grille, (N - 1, N - 1)]),
+        (None, [grille, (2 * N + 2, 2 * N + 2)]),
+        (None, [grille_1_pion, (0, 0)]),
+        (None, [grille_1_pion, (1, 1)]),
+        (None, [grille_2_pion, (3, 3)]), 
+        ((0, 0), [grille_2_pion, (1, 1)]), 
+        ((1, 1), [grille_2_pion, (0, 0)]), 
+        ((0, 4), [grille_3_pion, (0, 2)]),
+        ((0, 2), [grille_3_pion, (0, 0)]),
+        ((0, 2), [grille_3_pion, (0, 4)]),
+    ]
+
+    assert tester_fonction_avec_jeu(plus_proche_pion, jeu, False), "Vérification plus_proche_pion"
+
 def executer_tests():
     test_inverser_tour()
     test_est_dans_grille()
@@ -158,5 +206,7 @@ def executer_tests():
     test_extraire_coordonnees()
     test_deplacement()
     test_capture()
+    test_positions_alentours()
+    test_plus_proche_pion()
 
 # Fin des fonctions de tests
