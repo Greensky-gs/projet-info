@@ -104,9 +104,6 @@ def analyse_ciblee(grille, joueur, pion):
         grille         : le plateau
         joueur         : la couleur qui représente l'ordinateur
         pion           : tuple[int, int] - Le pion à analyser
-        est_bot        : bool - Si l'analyse est en train de se faire sur l'ordinateur.
-        profondeur     : Le nombre de coups à anticiper. Valeur par défaut : 1
-        ligne_actuelle : La ligne de coups, pour garder le fil de ce que l'ordinateur calcule. Valeur par défaut : ""
 
     Sortie: Tuple[int, str] | None - Le coup que l'ordinateur a choisit sous forme de texte à parser en int, précédé de son score. Peut valoir None
     """
@@ -139,6 +136,65 @@ def analyse_ciblee(grille, joueur, pion):
     if meilleur == None:
         return None
     return meilleur
+
+def analyse_recursive(grille, joueur, profondeur = 1, pion_impose = None) -> tuple[int, int, int, int, int, tuple[int, int] | None] | None:
+    """
+    Analyse le plateau récursivement
+    Entrée : grille, joueur, profondeur
+        grille      : La grille qui représente le jeu
+        joueur      : La couleur qui représente l'ordinateur
+        profondeur  : int - Le nombre d'itérations que l'ordinateur doit effectuer. Valeur par défaut : 1
+        pion_impose : tuple[int, int] | None - Le pion que l'ordinateur DOIT jouer, dans le cas où il faut calculer des prises successives. Si la profondeur est de 1, ce paramètre est ignoré. Valeur par défaut : None
+
+    Sortie : tuple[int, int, int, int, int] | None - Un tuple représentant : 0 : le coup est un déplacement, 1, c'est une capture, 2 c'est une capture, interrompue par la mort subite, et le coup à jouer, suivit de la nouvelle position du pion qui a capturé
+    """
+    if profondeur == 1:
+        res = analyse_libre(grille, joueur)
+        if res is None:
+            return None
+        if res[0] is False:
+            return (
+                0,
+                res[1],
+                res[2],
+                res[3],
+                res[4],
+                None
+            )
+        clone = [ r[:] for r in grille ]
+        nouvelle_pos = [-1, -1]
+        deplacement_capture(clone, res[1], res[2], res[3], res[4], joueur)
+        mort_subite = appliquer_mort_subite(clone, joueur, nouvelle_pos)
+
+        # Calcul de la case d'arrivée en se basant sur la case de départ et la case du pion capturé
+        coefx = res[3] - res[1]
+        coefy = res[4] - res[2]
+
+        endx = res[1] + 2 * coefx
+        endy = res[2] + 2 * coefy
+
+        return (
+            2 if mort_subite else 1,
+            res[1],
+            res[2],
+            res[3],
+            res[4],
+            ((nouvelle_pos[0], nouvelle_pos[1]) if mort_subite else (endx, endy))
+        )
+
+    
+    if pion_impose is not None:
+        T_MAX = 8192
+        scores = abr_creer(T_MAX)
+
+        captures = detection_captures_pions(grille, pion_impose)
+        for capture in captures:
+            clone = [ r[:] for r in grille ]
+
+            nouvelle_pos = [-1, -1]
+            deplacement_capture(clone, pion_impose[0], pion_impose[1], capture[0], capture[1], joueur)
+            mort_subite = appliquer_mort_subite(clone, joueur, nouvelle_pos)
+
 
 def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tuple[int, tuple[int, int], tuple[int, int]] | None:
     """
