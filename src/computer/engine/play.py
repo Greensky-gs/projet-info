@@ -1,4 +1,5 @@
 # Fonctions de jeu de l'ordinateur
+import logging
 from aux.tools import effacer_console
 from moves.detection import *
 from moves.capture import deplacement_capture
@@ -32,6 +33,7 @@ def jeu_ordinateur_ameliore(grille, joueur, nom, tour, noms_joueurs):
             sleep(T / 3);
 
         coup = choisir_coup_ordinateur_ameliore(grille, joueur, impose)
+        logging.info(f"Coup obtenu = {coup}")
         if coup is None:
             done = True
             continue

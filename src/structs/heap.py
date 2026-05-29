@@ -10,12 +10,14 @@ def abr_creer(taille_max = 256):
 def abr_sommet(abr):
     return abr[0]
 
-def abr_inserer(abr, elt, taille):
+def abr_inserer(abr, elt, taille, remplacement_si_pas_de_place = False):
     i = 0
     while abr[i] is not None and i < taille:
         i += 1
-    if i >= taille:
+    if i >= taille and not remplacement_si_pas_de_place:
         return
+    elif i >= taille and remplacement_si_pas_de_place: # On remplace le dernier noeud si pas de place. La raison à celà est que on va garder des scores, autant garder les meilleurs
+        i -= 1
 
     abr[i] = elt
     parent_index = math.floor((i - 1) / 2)

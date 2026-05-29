@@ -1,7 +1,9 @@
+import logging
 from _headers.constants import *
 from moves.detection import *
 from moves.capture import *
 from moves.move import deplacement_mouvement
+from structs.tour.interface import *
 from suddendeath.detection import appliquer_mort_subite
 from structs.heap import *
 # Fonction de sélection de coup pour l'ordinateur
@@ -105,7 +107,7 @@ def analyse_ciblee(grille, joueur, pion):
         joueur         : la couleur qui représente l'ordinateur
         pion           : tuple[int, int] - Le pion à analyser
 
-    Sortie: Tuple[int, str] | None - Le coup que l'ordinateur a choisit sous forme de texte à parser en int, précédé de son score. Peut valoir None
+    Sortie: tuple[bool, tuple[int, str]] | None - Si le coup est une capture, et ensuite le coup que l'ordinateur a choisit sous forme de texte à parser en int, précédé de son score. Peut valoir None
     """
     T_MAX = 8192
     scores = abr_creer(T_MAX)
@@ -133,67 +135,133 @@ def analyse_ciblee(grille, joueur, pion):
 
             abr_inserer(scores, [score, ligne_str("", (pion[0], pion[1], move[0], move[1]))], T_MAX)
     meilleur = abr_sommet(scores);
-    if meilleur == None:
+    if meilleur is None:
         return None
-    return meilleur
+    return (
+            len(captures) > 0,
+            int(meilleur[1][0]),
+            int(meilleur[1][1]),
+            int(meilleur[1][2]),
+            int(meilleur[1][3])
+    )
 
-def analyse_recursive(grille, joueur, profondeur = 1, pion_impose = None) -> tuple[int, int, int, int, int, tuple[int, int] | None] | None:
+def analyse_recursive(grille, joueur, profondeur = 1, pion_impose = None) -> None | tuple[bool, tuple[int, int], tuple[int, int]]:
     """
     Analyse le plateau récursivement
     Entrée : grille, joueur, profondeur
         grille      : La grille qui représente le jeu
         joueur      : La couleur qui représente l'ordinateur
         profondeur  : int - Le nombre d'itérations que l'ordinateur doit effectuer. Valeur par défaut : 1
-        pion_impose : tuple[int, int] | None - Le pion que l'ordinateur DOIT jouer, dans le cas où il faut calculer des prises successives. Si la profondeur est de 1, ce paramètre est ignoré. Valeur par défaut : None
+        pion_impose : tuple[int, int] | None - Le pion que l'ordinateur DOIT jouer, dans le cas où il faut calculer des prises successives. Valeur par défaut : None
 
     Sortie : tuple[int, int, int, int, int] | None - Un tuple représentant : 0 : le coup est un déplacement, 1, c'est une capture, 2 c'est une capture, interrompue par la mort subite, et le coup à jouer, suivit de la nouvelle position du pion qui a capturé
     """
-    if profondeur == 1:
-        res = analyse_libre(grille, joueur)
-        if res is None:
-            return None
-        if res[0] is False:
-            return (
-                0,
-                res[1],
-                res[2],
-                res[3],
-                res[4],
-                None
-            )
-        clone = [ r[:] for r in grille ]
-        nouvelle_pos = [-1, -1]
-        deplacement_capture(clone, res[1], res[2], res[3], res[4], joueur)
-        mort_subite = appliquer_mort_subite(clone, joueur, nouvelle_pos)
+    plates = [ [] for _ in range(profondeur + 1) ]
+    plates[0].append(())
+    inserted = []
+    index = 0
+    while profondeur - index > 0:
+        previous = plates[index]
+        index += 1
 
-        # Calcul de la case d'arrivée en se basant sur la case de départ et la case du pion capturé
-        coefx = res[3] - res[1]
-        coefy = res[4] - res[2]
+        for moves_chain in previous:
+            clone = [ row[:] for row in grille ] # Créer une copie de la grille initiale
 
-        endx = res[1] + 2 * coefx
-        endy = res[2] + 2 * coefy
+            joueur_base = joueur # C'est d'abord à l'ordinateur de jouer
+            last_require = None
+            for move in moves_chain: # Restaurer la grille après la position étudiée
+                if move[0]: # Si c'est une capture
+                    deplacement_capture(clone, move[1], move[2], move[3], move[4], joueur_base)
+                else: # Si ce n'est pas une capture
+                    deplacement_mouvement(clone, move[1], move[2], move[3], move[4], joueur_base)
+                last_require = move[5]
+                joueur_base = inverser_tour(joueur_base)
+            # À la fin de la boucle, joueur_base est directement configuré sur le joueur qui doit jouer à ce tour
+            # À partir de cette position, on va créer toutes les positions possibles, et on les range dans plates[index]
+            captures = (last_require,) if last_require is not None else detection_captures_joueur(clone, joueur_base) if pion_impose is None else (pion_impose,)
+            do_moves = True
+            logging.info(f"last_require = {last_require} | moves_chain = {moves_chain}")
+            if len(captures) > 0:
+                for capture in captures:
+                    captures_pion = detection_captures_pions(clone, capture)
+                    do_moves = last_require is not None and len(captures_pion) == 0 and len(captures) == 1 and captures[0][0] == last_require[0] and captures[0][1] == last_require[1]
 
-        return (
-            2 if mort_subite else 1,
-            res[1],
-            res[2],
-            res[3],
-            res[4],
-            ((nouvelle_pos[0], nouvelle_pos[1]) if mort_subite else (endx, endy))
-        )
+                    for capture_pion in captures_pion:
+                        position = [ row[:] for row in clone ] # Pour ne pas devoir recalculer à chaque fois
 
-    
-    if pion_impose is not None:
-        T_MAX = 8192
-        scores = abr_creer(T_MAX)
+                        nouvelle_pos = [-1, -1]
+                        if not deplacement_capture(position, capture[0], capture[1], capture_pion[0], capture_pion[1], joueur_base):
+                            logging.info(f"Capturing {capture} to {capture_pion} failed")
+                            continue
+                        mort_subite = appliquer_mort_subite(position, joueur_base, nouvelle_pos)
 
-        captures = detection_captures_pions(grille, pion_impose)
-        for capture in captures:
-            clone = [ r[:] for r in grille ]
+                        if index == profondeur:
+                            identifiant = moves_chain[0][:5]
+                            if not identifiant in inserted:
+                                logging.info(f"Appending (index = {index}) : {(moves_chain[0][0], (moves_chain[0][1], moves_chain[0][2]), (moves_chain[0][3], moves_chain[0][4]))}\n                 moves_chain = {moves_chain}")
+                                plates[index].append((
+                                    [ row[:] for row in position ],
+                                    (
+                                        identifiant[0],
+                                        (identifiant[1], identifiant[2]),
+                                        (identifiant[3], identifiant[4])
+                                    )
+                                ))
+                                inserted.append(identifiant)
+                        else:
+                            coefx = capture_pion[0] - capture[0]
+                            coefy = capture_pion[1] - capture[1]
 
-            nouvelle_pos = [-1, -1]
-            deplacement_capture(clone, pion_impose[0], pion_impose[1], capture[0], capture[1], joueur)
-            mort_subite = appliquer_mort_subite(clone, joueur, nouvelle_pos)
+                            endx = capture[0] + 2 * coefx
+                            endy = capture[1] + 2 * coefy
+
+                            new_move = (True, capture[0], capture[1], capture_pion[0], capture_pion[1], (endx, endy) if not mort_subite else nouvelle_pos)
+                            plates[index].append((*moves_chain, new_move))
+            if do_moves:
+                moves = detection_deplacements_joueur(clone, joueur_base) if pion_impose is None else (pion_impose,)
+                for move in moves:
+                    moves_pion = detection_deplacements_pions(clone, move)
+                    for move_pion in moves_pion:
+                        if index == profondeur:
+                            position = [ row[:] for row in clone ]
+
+                            if not deplacement_mouvement(position, move[0], move[1], move_pion[0], move_pion[1], joueur_base):
+                                continue
+                            appliquer_mort_subite(position, joueur_base)
+
+                            identifiant = moves_chain[0][:]
+                            if not identifiant in inserted:
+                                logging.info(f"Appending (index = {index}): {identifiant}")
+                                plates[index].append((
+                                    [ row[:] for row in position ],
+                                    (
+                                        identifiant[0],
+                                        (identifiant[1], identifiant[2]),
+                                        (identifiant[3], identifiant[4])
+                                    )
+                                ))
+                                inserted.append(identifiant)
+                        else:
+                            new_move = (False, move[0], move[1], move_pion[0], move_pion[1], None) # Le format: (est_capture, originx, originy, targetx, targety, position_pion_a_reprendre)
+                            plates[index].append((*moves_chain, new_move))
+    grilles = plates[profondeur]
+    T_MAX = 8192
+    scores = abr_creer(T_MAX)
+
+    logging.info(f"Available : {"\n".join(list(
+        map(lambda x: "         " + str(x[1]), grilles)
+    ))}")
+    for grille in grilles:
+        score = score_position(grille[0], joueur)
+
+        abr_inserer(scores, (score, grille[1]), T_MAX, True)
+
+    meilleur_pos = abr_sommet(scores)
+    if meilleur_pos is None:
+        return None
+
+    logging.info(f"Ended with meilleur_pos[1] = {meilleur_pos[1]}")
+    return meilleur_pos[1]
 
 
 def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tuple[int, tuple[int, int], tuple[int, int]] | None:
@@ -206,6 +274,24 @@ def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tupl
 
     Sortie : tuple[int, tuple[int, int], tuple[int, int]] | None - Le type de déplacement (0 = déplacement, 1 = capture) Les coordonnées du pion d'origine et celles de la case d'arrivée/celle du pion à capturer, ou None si l'ordinateur ne trouve aucun coup
     """
+
+    logging.basicConfig(filename="test/logs.log",
+                    filemode='a',
+                    format='%(asctime)s,%(msecs)03d %(name)s %(levelname)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    level=logging.DEBUG)
+    logging.info(f"Starting analyse with joueur = {joueur}")
+    move = analyse_recursive(grille, joueur, 6, pion_impose)
+    logging.info(f"Ending analyse with joueur = {joueur}")
+    if move is None:
+        return None
+
+    return (
+        int(move[0]),
+        move[1],
+        move[2]
+    )
+
     if pion_impose is None:
         coup = analyse_libre(grille, joueur)
         if coup is None:
@@ -217,9 +303,9 @@ def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tupl
         if coup is None:
             return None
         return (1, (
-            int(coup[1][0]),
-            int(coup[1][1])
+            int(coup[1]),
+            int(coup[2])
         ), (
-            int(coup[1][2]),
-            int(coup[1][3])
+            int(coup[3]),
+            int(coup[4])
         ))

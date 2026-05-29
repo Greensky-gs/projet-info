@@ -1,6 +1,6 @@
 from _headers.constants import *
 from aux.test_function import *
-from moves.detection import positions_alentours
+from moves.detection import detection_captures_joueur, positions_alentours
 from structs.tour.interface import *
 from structs.grille.helpers import *
 from structs.grille.interface import *
@@ -153,6 +153,26 @@ def test_capture():
 
     assert tester_fonction_avec_jeu(deplacement_capture, jeu, False), "Vérification deplacement_capture"
 
+def test_detection_captures_joueur():
+    # Cette fonction contient un seul test, il s'agit d'une vérification
+    grille = generer_grille_vide()
+
+    for (x, y) in ((0, 1), (0, 3), (0, 5), (0, 7), (3, 0), (3, 2), (3, 4), (3, 6)):
+        set_case(grille, x, y, 2)
+        if x == 0:
+            set_case(grille, x + 2, y, 2)
+    for (x, y) in ((4, 7), (5, 0), (5, 2), (5, 4), (5, 6), (6, 1), (6, 3), (6, 5), (6, 7)):
+        set_case(grille, x, y, 1)
+        if x == 5:
+            set_case(grille, x + 2, y, 1)
+    set_case(grille, 5, 6, 0)
+
+    jeu = [
+        ([], [grille, 1])
+    ]
+
+    assert tester_fonction_avec_jeu(detection_captures_joueur, jeu, False), "Vérification detection_captures_joueur"
+
 def test_positions_alentours():
     grille = generer_grille_test()
 
@@ -271,6 +291,7 @@ def executer_tests():
     test_extraire_coordonnees()
     test_deplacement()
     test_capture()
+    test_detection_captures_joueur()
     test_positions_alentours()
     test_plus_proche_pion()
     test_abr()
