@@ -1,4 +1,6 @@
 # Fonctions d'interface de la grille
+
+
 def case_grille(grille, x, y):
     """
     Obtient la valeur de la case (x;y) de la grille grille
@@ -34,5 +36,35 @@ def set_case(grille, x, y, val):
 
     grille[x][y] = val
     return True
+
+def list_coups_grille(grille, joueur, pion_impose = None) -> list[tuple[bool, tuple[int, int], tuple[int, int]]]:
+    """
+    Renvoie la liste de  tous les coups possibles pour un joueur donné
+    Entrée : grille, joueur
+        grille       : list[list[int]] - La grille de jeu
+        joueur       : PlayerType (int) - Le joueur dont les coups doivent être calculés
+        pion_imposoe : tuple[int, int] | None - Le pion que le joueur doit bouger (par exemple pour une chaine de captures)
+
+    Sortie : list[tuple[bool, tuple[int, int], tuple[int, int]]] - La liste de tous les coups possibles. La première valeur correspond à si le coup est une capture ou non, la deuxième est le premier paramètre de déplacement, et le troisième est le deuxième paramètre de déplacement
+    """
+    from moves.detection import detection_captures_joueur, detection_captures_pions, detection_deplacements_joueur, detection_deplacements_pions
+
+    captures = detection_captures_joueur(grille, joueur) if pion_impose is None else (pion_impose,)
+    if len(captures) > 0:
+        result = []
+        for capture in captures:
+            captures_pion = detection_captures_pions(grille, capture)
+            for capture_pion in captures_pion:
+                result.append((True, capture, capture_pion))
+        return result
+    else:
+        moves = detection_deplacements_joueur(grille, joueur)
+        result = []
+        for move in moves:
+            moves_pion = detection_deplacements_pions(grille, move)
+            for move_pion in moves_pion:
+                result.append((False, move, move_pion))
+        return result
+
 
 # Fin des fonctions d'interface de la grille
