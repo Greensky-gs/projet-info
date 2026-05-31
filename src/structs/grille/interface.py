@@ -49,7 +49,7 @@ def list_coups_grille(grille, joueur, pion_impose = None) -> list[tuple[bool, tu
     """
     from moves.detection import detection_captures_joueur, detection_captures_pions, detection_deplacements_joueur, detection_deplacements_pions
 
-    captures = detection_captures_joueur(grille, joueur) if pion_impose is None else (pion_impose,)
+    captures = detection_captures_joueur(grille, joueur) if pion_impose is None else (() if grille[pion_impose[0]][pion_impose[1]] == 0 else (pion_impose,))
     if len(captures) > 0:
         result = []
         for capture in captures:

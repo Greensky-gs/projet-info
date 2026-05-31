@@ -33,7 +33,7 @@ def test_inverser_tour():
     assert tour == 1, "Inverser tour 4"
 
 def test_est_dans_grille():
-    grille = [ [ 0 for y in range(N) ] for x in range(N) ]
+    grille = [ [ 0 for _ in range(N) ] for _ in range(N) ]
     jeu = [
         (True, [grille, 0, 0]),
         (True, [grille, 0, N - 1]),
@@ -48,7 +48,7 @@ def test_est_dans_grille():
 
 def test_case_grille():
     grillebis = [
-        [ 0 for y in range(N) ] for x in range(N)
+        [ 0 for _ in range(N) ] for _ in range(N)
     ]
 
     grillebis[N - 2][N - 1] = 2
@@ -67,7 +67,7 @@ def test_case_grille():
 
 def test_set_case():
     grillebis = [
-        [ 0 for y in range(N) ] for x in range(N)
+        [ 0 for _ in range(N) ] for _ in range(N)
     ]
 
     jeu = [
@@ -282,6 +282,36 @@ def test_abr():
 
     assert tester_fonction_avec_jeu(est_abr_trie, jeu_tri, False), "Vérification tri ABR après opérations"
 
+def test_est_partie_finie():
+    grilleA = generer_grille_test()
+    grilleB = generer_grille_vide()
+    grilleC = generer_grille_vide()
+
+    grilleC[0][0] = 1
+
+    jeu = [
+        ((False, False), [grilleA, 1]),
+        ((False, False), [grilleA, 2]),
+        ((False, False), [grilleB, 1]),
+        ((False, False), [grilleB, 2]),
+        ((True, False), [grilleC, 2]),
+        ((True, True), [grilleC, 1])
+    ]
+
+    assert tester_fonction_avec_jeu(est_partie_finie, jeu, False), "Vérification est_partie_finie"
+
+def test_manipulations_tour():
+    jeu = [
+        ("blanc", [1]),
+        ("noir", [2]),
+    ]
+
+    assert tester_fonction_avec_jeu(couleur_tour, jeu, False), "Vérification couleur_tour"
+    assert tester_fonction_avec_jeu(inverser_tour, [
+        (1, [2]),
+        (2, [1])
+    ], False), "Vérification inverser_tour"
+
 def executer_tests():
     test_inverser_tour()
     test_est_dans_grille()
@@ -295,5 +325,7 @@ def executer_tests():
     test_positions_alentours()
     test_plus_proche_pion()
     test_abr()
+    test_est_partie_finie()
+    test_manipulations_tour()
 
 # Fin des fonctions de tests

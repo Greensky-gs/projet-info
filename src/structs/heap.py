@@ -11,6 +11,17 @@ def abr_sommet(abr):
     return abr[0]
 
 def abr_inserer(abr, elt, taille, remplacement_si_pas_de_place = False):
+    """
+    Insère un élément dans l'ABR
+
+    Entrée : abr, elt, taille, remplacement_si_pas_de_place
+        abr                          : L'abre binaire de recherche
+        elt                          : L'élément à insérer. Doit être un tuple, et contenir l'entier de tri en première position
+        taille                       : La taille donnée
+        remplacement_si_pas_de_place : Remplace un des derniers éléments si la fin de l'arbre est atteinte. Par défaut : False
+
+    Sortie : Aucune
+    """
     i = 0
     while abr[i] is not None and i < taille:
         i += 1
@@ -31,6 +42,15 @@ def abr_inserer(abr, elt, taille, remplacement_si_pas_de_place = False):
         parent_index = math.floor((index - 1) / 2)
 
 def abr_pop(abr, taille):
+    """
+    Supprime et renvoie le premier élément de l'ABR
+
+    Entrée : abr, taille
+        abr    : L'abre binaire de recherche
+        taille : La taille donnée
+
+    Sortie : un élément de abr, ou None
+    """
     last_element_index = 0
     while abr[last_element_index] is not None:
         last_element_index += 1
@@ -50,13 +70,17 @@ def abr_pop(abr, taille):
     left_child_index = 1
     right_child_index = 2
     index = 0
+
+    # Petite boucle pour ordonner l'abre
     while (left_child_index < taille and abr[left_child_index] is not None and abr[index][0] < abr[left_child_index][0]) or (right_child_index < taille and abr[right_child_index] is not None and abr[index][0] < abr[right_child_index][0]):
+        # On vérifie l'arbre de gauche
         if left_child_index < taille and abr[left_child_index] is not None and abr[index][0] < abr[left_child_index][0]:
             abr[left_child_index], abr[index] = abr[index], abr[left_child_index]
             index = left_child_index
             left_child_index = 2 * index + 1
             right_child_index = 2 * index + 2
 
+        # On vérifie l'arbre de droite
         if right_child_index < taille and abr[right_child_index] is not None and abr[index][0] < abr[right_child_index][0]:
             abr[right_child_index], abr[index] = abr[index], abr[right_child_index]
             index = right_child_index

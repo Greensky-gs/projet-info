@@ -7,6 +7,15 @@ from aux.tools import *
 #        - La description
 #        - un identifiant
 def menu(nom: str, options: list[tuple[str, str, int]]):
+    """
+    Affiche et fait choisir le menu à l'utilisateur
+
+    Entrée : nom, options
+        nom     : Le nom du menu
+        options : La liste des options : des tuples contenant : le titre, la description, l'id à renvoyer si choisie
+
+    Sortie : un des identifiants donnés
+    """
     response = None
     n = len(options)
     msg = ""
