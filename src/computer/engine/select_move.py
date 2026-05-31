@@ -1,11 +1,11 @@
+import sys
 from _headers.constants import *
 from moves.detection import *
 from moves.capture import *
-from random import randint
 from moves.move import deplacement_mouvement
+from structs.tour.interface import *
 from suddendeath.detection import appliquer_mort_subite
 from structs.heap import *
-import logging
 # Fonction de sélection de coup pour l'ordinateur
 
 def score_position(grille, joueur):
@@ -17,10 +17,18 @@ def score_position(grille, joueur):
 
     Sortie: int - entier représentant le score de la position. Une valeur négative est une position désavantageuse pour l'ordinateur
     """
+    # Coefficients, on les mets dans un dictionnaire, mais on pourrait très bien les mettre dans des variables classique, je préfère cette notation car plus lisible
+    coeffs = {
+        "materiel": 0.6,
+        "ouvertures": -1.2,
+        "captures": 1 # On privilégie la défense plutôt que l'attaque
+    }
 
     # Analyse simplement matérielle
     pions_ordinateur = 0
     pions_adversaire = 0
+    ouvertures = 0
+    attaques = 0
     couleur_adversaire = joueur_adverse(joueur)
 
     for x in range(N):
@@ -28,64 +36,151 @@ def score_position(grille, joueur):
             # Pour des questions d'optimisation, on évite les caluls inutiles (ex: vérification de coordonnées)
             if grille[x][y] == couleur_adversaire:
                 pions_adversaire += 1
+
+                ouvertures += len(detection_captures_pions(grille, (x, y)))
             elif grille[x][y] == joueur:
                 pions_ordinateur += 1
 
-    return pions_ordinateur - pions_adversaire
+                attaques += len(detection_captures_pions(grille, (x, y)))
 
-def ligne_str(ligne, coup):
-    """Représente un ligne de coups sous forme de texte"""
-    return ligne + "{}{}{}{}".format(coup[0], coup[1], coup[2], coup[3])
+    return (pions_ordinateur - pions_adversaire) * coeffs["materiel"] + attaques * coeffs["captures"] + ouvertures * coeffs["ouvertures"]
 
-def analyse_libre(grille, joueur):
+def alpha_beta_pruning(
+        grille: tuple[list[list[int]], None | tuple[bool, tuple[int, int], tuple[int, int]], tuple[None | tuple[int, int], None | tuple[int, int]]],
+        couleur_bot,
+        profondeur = 1,
+        alpha = -sys.maxsize - 1,
+        beta = sys.maxsize,
+        est_bot = True,
+        top = True
+) -> tuple[int, list[list[int]], None | tuple[bool, tuple[int, int], tuple[int, int]], tuple[None | tuple[int, int], None | tuple[int, int]]]:
     """
-    Analyse la grille librement (sans devoir jouer un pion en particulier)
-    Entrée: grille, joueur
-        grille : la grille
-        joueur : la couleur qui représente l'ordinateur
+    Fonction de recherche algorithmique du meilleur coup à partir d'une position donnée
 
-    Sortie: tuple[bool, int, int, int, int] - Si c'est une capture, et le coup choisit par l'ordinateur
+    Utilise l'algorithme d'Élagage Alpha-Beta, qui consiste à éliminer les branches qui sont "déjà mauvaises" ou "déjà bonnes", pour ne pas avoir à calculer des positions redondantes, ou inutiles, et obtenir un temps de calcul raisonnable.
+    PS: Lors du premier coup, cet algorithme est très lent (~27 secondes), mais tourne autour de 5 secondes par la suite, pour une raison inconnue
+
+    Entrée : grille, couleur_bot, profondeur, alpha, beta, est_bot, top
+        grille      : Un tuple contenant : 1. La grille de jeu à rechercher 2. un tuple contenant le dernier coup joué (si capture, origine, destination) ou None 3. Un tuple représentant les derniers coups joués par, respectivement le joueur et le robot, afin de reprendre le calcul en cas de chaine de captures
+        couleur_bot : int - La couleur qui représente le robot
+        profondeur  : int - Le nombre d'itérations de l'algorithme à effectuer. Par défaut : 1
+        alpha       : int - Le score du meilleur coup trouvé jusqu'à présent. Par défaut : taille minimale des entiers signés en python
+        beta        : int - Le score du pire coup trouvé jusqu'à présent. Par défaut : taille maximale des entiers signés en python
+        est_bot     : bool - Si l'évaluation en cours évalue le robot ou le joueur
+        top         : bool - Paramètre servant à déterminer si il faut renvoyer le coup actuel ou le coup passé en paramètre (pour renvoyer le coup correct en sortie)
+
+    Sortie : Un tuple contenant : 1. Le score trouvé 2. La grille correspondante 3. Le coup (si capture, origine, destination) 4. Les Un tuple représentant les derniers coups joués par, respectivement le joueur et le robot
     """
-    
-    scores = abr_creer(8192)
+    if profondeur == 0 or est_partie_finie(grille[0], couleur_bot)[0]:
+        return (
+            score_position(grille[0], couleur_bot),
+            grille[0],
+            grille[1],
+            grille[2]
+        )
 
-    # On trouve tous les coups autorisés, puis on les "joue", et on assigne un score à chacune des grilles, en gardant seulement la meilleure
-    captures = detection_captures_joueur(grille, joueur)
-    if len(captures) > 0:
-        for capture in captures:
-            captures_pion = detection_captures_pions(grille, capture)
-            for capture_pion in captures_pion:
-                clone = [row[:] for row in grille]
+    if beta <= alpha:
+        return (beta, grille[0], grille[1], grille[2])
 
-                deplacement_capture(clone, capture[0], capture[1], capture_pion[0], capture_pion[1], joueur)
-                appliquer_mort_subite(clone, joueur)
+    if est_bot is True:
+        meilleur: tuple[int, list[list[int]], None | tuple[bool, tuple[int, int], tuple[int, int]], tuple[None | tuple[int, int], None | tuple[int, int]]] = (-sys.maxsize - 1, [ row[:] for row in grille[0] ], None, (None, None)) 
+        pion_impose = grille[2][1]
 
-                score = score_position(clone, joueur)
-                abr_inserer(scores, [score, ligne_str("", (capture[0], capture[1], capture_pion[0], capture_pion[1]))])
+        coups = list_coups_grille(grille[0], couleur_bot, pion_impose)
+        for coup in coups:
+            clone = [ row[:] for row in grille[0] ]
+
+            if coup[0] is True:
+                deplacement_capture(clone, coup[1][0], coup[1][1], coup[2][0], coup[2][1], couleur_bot)
+            else:
+                deplacement_mouvement(clone, coup[1][0], coup[1][1], coup[2][0], coup[2][1], couleur_bot)
+            mort_subite = appliquer_mort_subite(clone, couleur_bot)
+
+            coefx = coup[2][0] - coup[1][0]
+            coefy = coup[2][1] - coup[1][1]
+
+            endx = coup[1][0] + 2 * coefx
+            endy = coup[1][1] + 2 * coefy
+
+            val = alpha_beta_pruning(
+                (clone, coup, (
+                    grille[2][1],
+                    None if not coup[0] or mort_subite else (endx, endy)
+                )),
+                couleur_bot,
+                profondeur - 1,
+                alpha,
+                beta,
+                False,
+                False
+            )
+            
+            if val[0] >= meilleur[0]:
+                meilleur = (
+                    val[0],
+                    [ row[:] for row in val[1] ],
+                    grille[1] if not top else coup,
+                    (
+                        grille[2][1],
+                        None if not coup[0] or mort_subite else (endx, endy)
+                    )
+                )
+                alpha = max(alpha, val[0])
+                if alpha >= beta:
+                    break
     else:
-        moves = detection_deplacements_joueur(grille, joueur)
-        for move in moves:
-            moves_pion = detection_deplacements_pions(grille, move)
-            for move_pion in moves_pion:
-                clone = [row[:] for row in grille]
+        meilleur: tuple[int, list[list[int]], None | tuple[bool, tuple[int, int], tuple[int, int]], tuple[None | tuple[int, int], None | tuple[int, int]]] = (sys.maxsize, [ row[:] for row in grille[0] ], None, (None, None))
+        pion_impose = grille[2][0]
 
-                deplacement_mouvement(clone, move[0], move[1], move_pion[0], move_pion[1], joueur)
-                appliquer_mort_subite(clone, joueur)
+        coups = list_coups_grille(grille[0], joueur_adverse(couleur_bot), pion_impose)
+        for coup in coups:
+            clone = [ row[:] for row in grille[0] ]
 
-                score = score_position(clone, joueur)
-                abr_inserer(scores, [score, ligne_str("", (move[0], move[1], move_pion[0], move_pion[1]))])
+            if coup[0] is True:
+                deplacement_capture(clone, coup[1][0], coup[1][1], coup[2][0], coup[2][1], couleur_bot)
+            else:
+                deplacement_mouvement(clone, coup[1][0], coup[1][1], coup[2][0], coup[2][1], couleur_bot)
+            mort_subite = appliquer_mort_subite(clone, couleur_bot)
 
-    meilleur_coup = abr_sommet(scores)
-    if meilleur_coup is None:
-        return None
+            coefx = coup[2][0] - coup[1][0]
+            coefy = coup[2][1] - coup[1][1]
+
+            endx = coup[1][0] + 2 * coefx
+            endy = coup[1][1] + 2 * coefy
+
+            val = alpha_beta_pruning(
+                (clone, coup, (
+                    None if not coup[0] or mort_subite else (endx, endy),
+                    grille[2][1]
+                )),
+                couleur_bot,
+                profondeur - 1,
+                alpha,
+                beta,
+                True,
+                False
+            )
+            
+            if val[0] <= meilleur[0]:
+                meilleur = (
+                    val[0],
+                    [ row[:] for row in val[1] ],
+                    grille[1] if not top else coup,
+                    (
+                        grille[2][1],
+                        None if not coup[0] or mort_subite else (endx, endy)
+                    )
+                )
+                beta = min(beta, val[0])
+                if beta <= alpha:
+                    break
 
     return (
-            len(captures) > 0,
-            int(meilleur_coup[1][0]),
-            int(meilleur_coup[1][1]),
-            int(meilleur_coup[1][2]),
-            int(meilleur_coup[1][3])
-    )
+        meilleur[0],
+        [ row[:] for row in meilleur[1] ],
+        meilleur[2],
+        meilleur[3]
+    ) 
 
 def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tuple[int, tuple[int, int], tuple[int, int]] | None:
     """
@@ -97,12 +192,7 @@ def choisir_coup_ordinateur_ameliore(grille, joueur, pion_impose = None) -> tupl
 
     Sortie : tuple[int, tuple[int, int], tuple[int, int]] | None - Le type de déplacement (0 = déplacement, 1 = capture) Les coordonnées du pion d'origine et celles de la case d'arrivée/celle du pion à capturer, ou None si l'ordinateur ne trouve aucun coup
     """
-    if pion_impose is None:
-        coup = analyse_libre(grille, joueur)
-        if coup is None:
-            return None
-        return (1 if coup[0] else 0, (coup[1], coup[2]), (coup[3], coup[4]))
-    else:
-        captures = detection_captures_pions(grille, pion_impose)
-        if len(captures) == 0:
-            return None
+    move = alpha_beta_pruning((grille, None, (None, pion_impose)), joueur, 8)
+    if move is None:
+        return None
+    return move[2] 

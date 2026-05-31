@@ -1,6 +1,6 @@
 from _headers.constants import *
 from aux.test_function import *
-from moves.detection import positions_alentours
+from moves.detection import detection_captures_joueur, positions_alentours
 from structs.tour.interface import *
 from structs.grille.helpers import *
 from structs.grille.interface import *
@@ -33,7 +33,7 @@ def test_inverser_tour():
     assert tour == 1, "Inverser tour 4"
 
 def test_est_dans_grille():
-    grille = [ [ 0 for y in range(N) ] for x in range(N) ]
+    grille = [ [ 0 for _ in range(N) ] for _ in range(N) ]
     jeu = [
         (True, [grille, 0, 0]),
         (True, [grille, 0, N - 1]),
@@ -48,7 +48,7 @@ def test_est_dans_grille():
 
 def test_case_grille():
     grillebis = [
-        [ 0 for y in range(N) ] for x in range(N)
+        [ 0 for _ in range(N) ] for _ in range(N)
     ]
 
     grillebis[N - 2][N - 1] = 2
@@ -67,7 +67,7 @@ def test_case_grille():
 
 def test_set_case():
     grillebis = [
-        [ 0 for y in range(N) ] for x in range(N)
+        [ 0 for _ in range(N) ] for _ in range(N)
     ]
 
     jeu = [
@@ -153,6 +153,26 @@ def test_capture():
 
     assert tester_fonction_avec_jeu(deplacement_capture, jeu, False), "Vérification deplacement_capture"
 
+def test_detection_captures_joueur():
+    # Cette fonction contient un seul test, il s'agit d'une vérification
+    grille = generer_grille_vide()
+
+    for (x, y) in ((0, 1), (0, 3), (0, 5), (0, 7), (3, 0), (3, 2), (3, 4), (3, 6)):
+        set_case(grille, x, y, 2)
+        if x == 0:
+            set_case(grille, x + 2, y, 2)
+    for (x, y) in ((4, 7), (5, 0), (5, 2), (5, 4), (5, 6), (6, 1), (6, 3), (6, 5), (6, 7)):
+        set_case(grille, x, y, 1)
+        if x == 5:
+            set_case(grille, x + 2, y, 1)
+    set_case(grille, 5, 6, 0)
+
+    jeu = [
+        ([], [grille, 1])
+    ]
+
+    assert tester_fonction_avec_jeu(detection_captures_joueur, jeu, False), "Vérification detection_captures_joueur"
+
 def test_positions_alentours():
     grille = generer_grille_test()
 
@@ -220,13 +240,13 @@ def test_abr():
     b = abr_creer(4)
     c = abr_creer(4)
 
-    abr_inserer(a, [0, 'abc'])
-    abr_inserer(b, [0, 'abc'])
-    abr_inserer(b, [1, 'abcd'])
-    abr_inserer(b, [-1, 'abcde'])
-    abr_inserer(c, [0, 'abc'])
-    abr_inserer(c, [-1, 'abcde'])
-    abr_inserer(c, [3, 'trois'])
+    abr_inserer(a, [0, 'abc'], 4)
+    abr_inserer(b, [0, 'abc'], 4)
+    abr_inserer(b, [1, 'abcd'], 4)
+    abr_inserer(b, [-1, 'abcde'], 4)
+    abr_inserer(c, [0, 'abc'], 4)
+    abr_inserer(c, [-1, 'abcde'], 4)
+    abr_inserer(c, [3, 'trois'], 4)
 
     jeu = [
         ([0, 'abc'], [a]),
@@ -262,6 +282,36 @@ def test_abr():
 
     assert tester_fonction_avec_jeu(est_abr_trie, jeu_tri, False), "Vérification tri ABR après opérations"
 
+def test_est_partie_finie():
+    grilleA = generer_grille_test()
+    grilleB = generer_grille_vide()
+    grilleC = generer_grille_vide()
+
+    grilleC[0][0] = 1
+
+    jeu = [
+        ((False, False), [grilleA, 1]),
+        ((False, False), [grilleA, 2]),
+        ((False, False), [grilleB, 1]),
+        ((False, False), [grilleB, 2]),
+        ((True, False), [grilleC, 2]),
+        ((True, True), [grilleC, 1])
+    ]
+
+    assert tester_fonction_avec_jeu(est_partie_finie, jeu, False), "Vérification est_partie_finie"
+
+def test_manipulations_tour():
+    jeu = [
+        ("blanc", [1]),
+        ("noir", [2]),
+    ]
+
+    assert tester_fonction_avec_jeu(couleur_tour, jeu, False), "Vérification couleur_tour"
+    assert tester_fonction_avec_jeu(inverser_tour, [
+        (1, [2]),
+        (2, [1])
+    ], False), "Vérification inverser_tour"
+
 def executer_tests():
     test_inverser_tour()
     test_est_dans_grille()
@@ -271,8 +321,11 @@ def executer_tests():
     test_extraire_coordonnees()
     test_deplacement()
     test_capture()
+    test_detection_captures_joueur()
     test_positions_alentours()
     test_plus_proche_pion()
     test_abr()
+    test_est_partie_finie()
+    test_manipulations_tour()
 
 # Fin des fonctions de tests

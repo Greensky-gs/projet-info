@@ -33,13 +33,14 @@ def plus_proche_pion(grille, de):
                     pos = (x, y)
     return pos
 
-def appliquer_mort_subite(grille, tour):
+def appliquer_mort_subite(grille, tour, position = None):
     """
     Applique la mort subite
 
     Entrée :
-        grille : la grille
-        tour   : Le tour du joueur à qui on doit vérifier
+        grille   : la grille
+        tour     : Le tour du joueur à qui on doit vérifier
+        position : Tuple[int] | None - Une sorte de pointeur pour renvoyer la nouvelle position du pion si besoin. Les listes se comportent plus ou moins comme des pointeurs en C, exploitons cette particularité
     Sortie : booléen - Si la mort subite a été appliquée
     """
 
@@ -55,6 +56,9 @@ def appliquer_mort_subite(grille, tour):
                 for y in range(N):
                     if case_grille(grille, x, y) == 0 and valeur_case_depart(x, y) != 0:
                         set_case(grille, x, y, tour)
+                        if position is not None:
+                            position[0] = x
+                            position[1] = y
                         return True
     return False
 

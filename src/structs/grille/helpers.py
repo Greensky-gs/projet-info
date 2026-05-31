@@ -82,6 +82,6 @@ def est_partie_finie(grille, tour):
                 apparences.append(case)
 
     # Si len(apparences) == 0 il y a un problème
-    return (len(apparences) == 1, apparences[0] == tour)
+    return (len(apparences) == 1, len(apparences) == 1 and apparences[0] == tour)
 
 # Fin des fonctions utilitaires de la grille
